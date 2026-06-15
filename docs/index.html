@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSLab в облаке — установка на свой VPS</title>
+<meta name="description" content="Поставьте торговый сервер TSLab на свой Linux VPS одной командой и подключите к своему аккаунту TSCloud. Без админских навыков.">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2b3340;
+    --text:#e6edf3; --muted:#9aa7b4; --accent:#3b82f6; --accent2:#22c55e;
+    --code:#0b0f16; --warn:#f59e0b; --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f8fa; --panel:#ffffff; --panel2:#f0f3f7; --border:#d8dee4;
+      --text:#1f2328; --muted:#5b6672; --code:#0b0f16; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  header.hero{padding:64px 0 40px;text-align:center}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:15px;
+    color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+  .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent2)}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.1;margin:18px 0 12px;letter-spacing:-.5px}
+  .sub{font-size:18px;color:var(--muted);max-width:620px;margin:0 auto 28px}
+  .badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+  .badge{font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--border);
+    border-radius:999px;padding:5px 12px}
+  section{padding:34px 0;border-top:1px solid var(--border)}
+  h2{font-size:24px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;
+    background:var(--accent);color:#fff;font-size:15px;font-weight:700;flex:0 0 auto}
+  h3{font-size:17px;margin:22px 0 8px}
+  p{margin:8px 0}
+  .muted{color:var(--muted)}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:6px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+  .card h4{margin:0 0 6px;font-size:15px}
+  .card p{margin:0;font-size:14px;color:var(--muted)}
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:0}
+  .tab{padding:9px 16px;border:1px solid var(--border);border-bottom:none;background:var(--panel2);
+    color:var(--muted);border-radius:10px 10px 0 0;cursor:pointer;font-size:14px;font-weight:600}
+  .tab.active{background:var(--code);color:var(--text)}
+  .codewrap{position:relative;background:var(--code);border:1px solid var(--border);border-radius:0 12px 12px 12px}
+  .codewrap.solo{border-radius:12px}
+  pre{margin:0;padding:18px 56px 18px 18px;overflow-x:auto;color:#e6edf3;
+    font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .copy{position:absolute;top:10px;right:10px;background:var(--panel);border:1px solid var(--border);
+    color:var(--muted);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;transition:.15s}
+  .copy:hover{color:var(--text);border-color:var(--accent)}
+  .copy.done{color:var(--accent2);border-color:var(--accent2)}
+  .hide{display:none}
+  .note{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:8px;padding:12px 16px;margin:16px 0;font-size:14.5px}
+  .note.warn{border-left-color:var(--warn)}
+  .note.ok{border-left-color:var(--accent2)}
+  details{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 16px;margin:10px 0}
+  summary{cursor:pointer;padding:14px 0;font-weight:600;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸";margin-right:10px;color:var(--accent)}
+  details[open] summary::before{content:"▾"}
+  details .body{padding:0 0 14px;color:var(--muted);font-size:14.5px}
+  kbd{background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:13px;
+    font-family:ui-monospace,monospace}
+  footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--border)}
+  .step-flow{counter-reset:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="logo"><span class="dot"></span> TSLab Cloud Server</div>
+    <h1>TSLab на вашем VPS — одной командой</h1>
+    <p class="sub">Поставьте торговый сервер TSLab на собственный Linux-сервер и подключите его
+      к своему аккаунту TSCloud. Без навыков системного администратора.</p>
+    <div class="badges">
+      <span class="badge">🐧 Linux / 🍏 macOS / 🪟 Windows</span>
+      <span class="badge">🐳 Docker</span>
+      <span class="badge">🔒 Вход через TSCloud (QR)</span>
+      <span class="badge">♻️ Данные сохраняются</span>
+    </div>
+  </header>
+
+  <!-- ТРЕБОВАНИЯ -->
+  <section id="req">
+    <h2>Что нужно</h2>
+    <div class="grid">
+      <div class="card"><h4>VPS или сервер</h4><p>Любой Linux-сервер (Ubuntu/Debian и др.), 1–2 ГБ RAM. Подойдёт и домашний компьютер с Docker.</p></div>
+      <div class="card"><h4>Доступ по SSH</h4><p>Обычный пользователь с правами <code>sudo</code> (или root). Так заходят на VPS у любого хостинга.</p></div>
+      <div class="card"><h4>Аккаунт TSCloud</h4><p>Ваш аккаунт на <a href="https://tscloud.pro" target="_blank" rel="noopener">TSCloud</a>. Подтверждение входа — с телефона по QR.</p></div>
+      <div class="card"><h4>Docker</h4><p>Не установлен? Скрипт поставит его сам (с вашего подтверждения).</p></div>
+    </div>
+  </section>
+
+  <!-- ШАГ 1 -->
+  <section id="install">
+    <h2><span class="n">1</span> Установка одной командой</h2>
+    <p class="muted">Зайдите на сервер по SSH и вставьте команду. Она проверит/поставит Docker, скачает
+      TSLab, запустит его и доведёт до входа в TSCloud.</p>
+
+    <div class="tabs">
+      <div class="tab active" data-os="nix">Linux / macOS</div>
+      <div class="tab" data-os="win">Windows (PowerShell)</div>
+    </div>
+
+    <div class="codewrap" data-pane="nix">
+      <button class="copy">Копировать</button>
+      <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash</code></pre>
+    </div>
+    <div class="codewrap hide" data-pane="win">
+      <button class="copy">Копировать</button>
+      <pre><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></pre>
+    </div>
+
+    <div class="note ok">Контейнер слушает только <b>localhost</b> — наружу ничего не открывается.
+      Управлять торговлей вы будете из <b>TSCloud</b>, поэтому веб-интерфейс сервера светить в интернет не нужно.</div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section id="login">
+    <h2><span class="n">2</span> Вход в TSCloud (по коду / QR)</h2>
+    <p class="muted">Сразу после установки скрипт покажет короткий код, ссылку и QR-код прямо в терминале:</p>
+    <div class="codewrap solo">
+<pre><code>────────────────────────────────────────────────
+  Вход в TSCloud
+  1) Откройте на телефоне:  https://id.tsverse.pro/device
+  2) Введите код:           WDJB-MJHT
+  (или отсканируйте QR-код ниже)
+────────────────────────────────────────────────
+  █▀▀▀▀▀█ ▀▄█▀▄ █▀▀▀▀▀█
+  █ ███ █ █▀ ▄▀ █ ███ █
+  █ ▀▀▀ █ ▄█▀█▄ █ ▀▀▀ █
+  ▀▀▀▀▀▀▀ █▄▀▄█ ▀▀▀▀▀▀▀
+  ...
+  Waiting for confirmation...</code></pre>
+    </div>
+    <ol>
+      <li>Отсканируйте <b>QR-код</b> телефоном (или откройте ссылку и введите код вручную).</li>
+      <li>Войдите в свой аккаунт TSCloud и нажмите <b>«Подтвердить»</b>.</li>
+      <li>Скрипт сам поймёт, что вход выполнен, и напишет <b>«Подключено к TSCloud»</b>.</li>
+    </ol>
+    <div class="note">Не успели за 5 минут? Код просто обновится. Посмотреть новый можно так:
+      <br><code>docker logs -f tslab</code></div>
+    <div class="note ok">После первого входа сервер запоминает вас. При перезапуске и обновлении
+      <b>повторно входить не нужно</b> — сессия восстанавливается автоматически.</div>
+  </section>
+
+  <!-- УПРАВЛЕНИЕ -->
+  <section id="manage">
+    <h2>Управление</h2>
+    <div class="codewrap solo">
+      <button class="copy">Копировать</button>
+<pre><code>docker logs -f tslab      # логи (и код входа в TSCloud)
+docker restart tslab      # перезапуск (вход сохранится)
+docker stop tslab         # остановить
+docker rm -f tslab        # удалить контейнер (данные останутся)</code></pre>
+    </div>
+
+    <h3>Обновление до новой версии</h3>
+    <p class="muted">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSCloud сохранятся:</p>
+    <div class="codewrap solo">
+      <button class="copy">Копировать</button>
+      <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash</code></pre>
+    </div>
+  </section>
+
+  <!-- ДАННЫЕ И БЕЗОПАСНОСТЬ -->
+  <section id="data">
+    <h2>Данные и безопасность</h2>
+    <ul>
+      <li><b>Где данные.</b> Всё (база, скрипты, настройки, сессия TSCloud) хранится на сервере в папке
+        <code>~/.local/share/tslab</code>, а не внутри контейнера — поэтому переживает перезапуск и обновление.</li>
+      <li><b>Бэкап.</b> <code>tar czf tslab-backup.tgz -C ~/.local/share/tslab .</code></li>
+      <li><b>Доступ.</b> WebUI доступен только локально (<code>127.0.0.1:8088</code>). Хотите открыть его со
+        своего компьютера — пробросьте по SSH: <code>ssh -L 8088:localhost:8088 user@your-vps</code>, затем
+        откройте <a href="http://localhost:8088" target="_blank" rel="noopener">http://localhost:8088</a>.</li>
+      <li><b>Вход.</b> Подтверждение входа всегда происходит на вашей стороне (телефон/браузер) — пароль в
+        скрипт и на сервер не передаётся.</li>
+    </ul>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section id="faq">
+    <h2>Если что-то пошло не так</h2>
+
+    <details><summary>Docker не ставится / нет прав</summary>
+      <div class="body">Нужны права <kbd>sudo</kbd> или root. На большинстве VPS вы заходите под root либо под
+        пользователем с sudo. Установить Docker вручную: <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">docs.docker.com/engine/install</a>, затем запустите команду установки снова.</div></details>
+
+    <details><summary>Порт 8088 уже занят</summary>
+      <div class="body">Запустите с другим портом:
+        <br><code>TSLAB_PORT=8090 bash -c "$(curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh)"</code></div></details>
+
+    <details><summary>Не увидел код входа в TSCloud</summary>
+      <div class="body">Посмотрите логи: <code>docker logs -f tslab</code> — там будет ссылка, код и QR. Если вход
+        уже был выполнен ранее, кода не будет: сессия восстановлена автоматически.</div></details>
+
+    <details><summary>Как полностью переустановить «с нуля»</summary>
+      <div class="body">Удалите контейнер и данные, затем установите заново:
+        <br><code>docker rm -f tslab &amp;&amp; rm -rf ~/.local/share/tslab</code></div></details>
+
+    <details><summary>Файлы в папке данных принадлежат root</summary>
+      <div class="body">Контейнер работает от root, поэтому файлы в <code>~/.local/share/tslab</code> создаются от
+        root. На своём VPS это нормально. Управлять/удалять их можно через <kbd>sudo</kbd>.</div></details>
+  </section>
+
+  <footer>
+    TSLab Cloud Server · образ <code>tslabdev/tslab-console</code> на Docker Hub<br>
+    Вопросы по торговой платформе — на <a href="https://tslab.ru" target="_blank" rel="noopener">tslab.ru</a>
+  </footer>
+
+</div>
+
+<script>
+  // tabs
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      var os = t.dataset.os;
+      document.querySelectorAll('[data-pane]').forEach(function(p){
+        p.classList.toggle('hide', p.dataset.pane !== os);
+      });
+    });
+  });
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        var old = btn.textContent;
+        btn.textContent = 'Скопировано ✓'; btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1600);
+      });
+    });
+  });
+</script>
+</body>
+</html>
