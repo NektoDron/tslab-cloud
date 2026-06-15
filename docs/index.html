@@ -163,19 +163,37 @@
       <b>повторно входить не нужно</b> — сессия восстанавливается автоматически.</div>
   </section>
 
+  <!-- ШАГ 3 -->
+  <section id="panel">
+    <h2><span class="n">3</span> Управление через браузер</h2>
+    <p class="muted">Сервером удобнее всего управлять из <b>веб-панели</b> — её не нужно устанавливать,
+      она открывается в любом браузере с любого устройства и общается с вашим VPS только через TSCloud
+      (порты наружу открывать не надо).</p>
+    <ol>
+      <li><b>Откройте панель управления:</b>
+        <div style="margin:10px 0">
+          <a href="app/" target="_blank" rel="noopener"
+             style="background:var(--accent);color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">🖥️ Открыть панель управления →</a>
+        </div>
+        <span class="muted">Прямая ссылка: <a href="app/" target="_blank" rel="noopener">nektodron.github.io/tslab-cloud/app/</a></span>
+      </li>
+      <li>Нажмите <b>«Войти через Identity Server»</b> и авторизуйтесь под <b>тем же аккаунтом TSCloud</b>,
+        в который вошёл ваш сервер на шаге 2.</li>
+      <li>Ваш сервер выберется <b>автоматически</b>. Если серверов несколько — выберите нужный в списке
+        <b>«Target»</b> вверху страницы.</li>
+      <li>Готово — управляйте агентами, скриптами, графиками и сделками. Все команды идут на ваш VPS через TSCloud.</li>
+    </ol>
+    <div class="note ok">Панель ничего не хранит у себя: вход — это ваш токен TSCloud в браузере, а данные
+      и команды идут напрямую на ваш сервер.</div>
+  </section>
+
   <!-- УПРАВЛЕНИЕ -->
   <section id="manage">
-    <h2>Управление</h2>
-    <p class="muted">Управлять сервером можно через TSCloud — без открытия портов наружу. Два способа:</p>
-    <div class="note ok" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between">
-      <div>🖥️ <b>Веб-панель управления</b> — откройте в браузере, войдите в свой аккаунт TSCloud и выберите
-        сервер. Ставить ничего не нужно, работает с любого устройства.</div>
-      <a href="app/" target="_blank" rel="noopener"
-         style="background:var(--accent);color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:600;white-space:nowrap">Открыть панель →</a>
-    </div>
-    <p class="muted">Либо — <b>из своего обычного TSLab</b> на компьютере: запустите его, выберите
-      <b>удалённый сервер</b> (ваш VPS привязан к тому же аккаунту TSCloud) и торгуйте как обычно.</p>
-    <h3>Служебные команды на сервере (по SSH)</h3>
+    <h2>Служебное управление</h2>
+    <p class="muted">Кроме веб-панели (<a href="#panel">шаг 3</a>), сервером можно управлять и из вашего
+      <b>обычного TSLab</b> на компьютере — выберите удалённый сервер, команды пойдут на VPS через TSCloud.
+      Ниже — команды на самом сервере по SSH (логи, перезапуск, обновление):</p>
+    <h3>Команды на сервере (по SSH)</h3>
     <div class="codewrap solo">
       <button class="copy">Копировать</button>
 <pre><code>docker logs -f tslab      # логи (и код входа в TSCloud)
