@@ -122,6 +122,10 @@
       <pre><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></pre>
     </div>
 
+    <div class="note warn">⚠️ <b>Windows / PowerShell:</b> используйте вкладку <b>«Windows (PowerShell)»</b> выше
+      (команду <code>irm … | iex</code>). Команда <code>curl … | bash</code> в PowerShell <b>не работает</b> —
+      там <code>curl</code> это <code>Invoke-WebRequest</code>, и вы получите ошибку «Не удается найти параметр fsSL».</div>
+
     <div class="note ok">Контейнер слушает только <b>localhost</b> — наружу ничего не открывается.
       Управлять сервером вы будете из <b>своего обычного TSLab</b> на компьютере: в нём выбираете
       удалённый сервер, и команды идут на VPS через <b>TSCloud</b>. Открывать веб-интерфейс сервера в интернет не нужно.</div>
@@ -130,7 +134,8 @@
   <!-- ШАГ 2 -->
   <section id="login">
     <h2><span class="n">2</span> Вход в TSCloud (по коду / QR)</h2>
-    <p class="muted">Сразу после установки скрипт покажет короткий код, ссылку и QR-код прямо в терминале:</p>
+    <p class="muted">Через <b>~30–60 секунд</b> после старта (сервер сперва пытается восстановить прошлую
+      сессию) скрипт покажет короткий код, ссылку и QR-код прямо в терминале:</p>
     <div class="codewrap solo">
 <pre><code>────────────────────────────────────────────────
   Вход в TSCloud
@@ -150,8 +155,10 @@
       <li>Войдите в свой аккаунт TSCloud и нажмите <b>«Подтвердить»</b>.</li>
       <li>Скрипт сам поймёт, что вход выполнен, и напишет <b>«Подключено к TSCloud»</b>.</li>
     </ol>
-    <div class="note">Не успели за 5 минут? Код просто обновится. Посмотреть новый можно так:
-      <br><code>docker logs -f tslab</code></div>
+    <div class="note">Не видите код? Он появляется не сразу — <b>дождитесь</b> блока с QR в логах
+      (используйте <code>-f</code>, чтобы они не обрывались):
+      <br><code>docker logs -f tslab</code>
+      <br>Не успели за 5 минут — код просто обновится, новый будет там же.</div>
     <div class="note ok">После первого входа сервер запоминает вас. При перезапуске и обновлении
       <b>повторно входить не нужно</b> — сессия восстанавливается автоматически.</div>
   </section>
@@ -210,9 +217,16 @@ docker rm -f tslab        # удалить контейнер (данные ос
       <div class="body">Запустите с другим портом:
         <br><code>TSLAB_PORT=8090 bash -c "$(curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh)"</code></div></details>
 
+    <details><summary>Windows: ошибка «Не удается найти параметр fsSL» (PowerShell)</summary>
+      <div class="body">Вы вставили Linux-команду в PowerShell. Возьмите команду из вкладки
+        <b>Windows (PowerShell)</b>:
+        <br><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></div></details>
+
     <details><summary>Не увидел код входа в TSCloud</summary>
-      <div class="body">Посмотрите логи: <code>docker logs -f tslab</code> — там будет ссылка, код и QR. Если вход
-        уже был выполнен ранее, кода не будет: сессия восстановлена автоматически.</div></details>
+      <div class="body">Код появляется через <b>~30–60 секунд</b> после старта (сервер сперва пытается
+        восстановить прошлую сессию). Смотрите логи с <code>-f</code> и дождитесь блока с QR:
+        <code>docker logs -f tslab</code>. Если вход уже был выполнен ранее, кода не будет — сессия
+        восстановлена автоматически.</div></details>
 
     <details><summary>Как полностью переустановить «с нуля»</summary>
       <div class="body">Удалите контейнер и данные, затем установите заново:
@@ -253,6 +267,15 @@ docker rm -f tslab        # удалить контейнер (данные ос
       });
     });
   });
+  // Auto-select the Windows tab for Windows visitors — the most common install mistake is pasting
+  // the Linux `curl … | bash` command into PowerShell.
+  (function(){
+    var isWin = /Win/i.test(navigator.platform || '') || /Windows/i.test(navigator.userAgent || '');
+    if (isWin) {
+      var winTab = document.querySelector('.tab[data-os="win"]');
+      if (winTab) winTab.click();
+    }
+  })();
 </script>
 </body>
 </html>
