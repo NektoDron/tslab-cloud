@@ -1,0 +1,80 @@
+{
+  "page_title": "Управление скриптами",
+  "page_description": "Компиляция и выполнение торговых стратегий",
+  "compile_dialog": {
+    "title": "Компиляция скрипта",
+    "compilation_params": "Параметры компиляции",
+    "optimized_compilation": "Оптимизированная компиляция",
+    "generate_debug_info": "Генерировать отладочную информацию",
+    "compilation_success": "Компиляция успешно завершена",
+    "compilation_error": "Ошибка компиляции",
+    "errors": "Ошибки",
+    "warnings": "Предупреждения",
+    "compiled_assembly": "Скомпилированная сборка (путь)"
+  },
+  "script_info": {
+    "compiled": "Скомпилирован",
+    "requires_compilation": "Требует компиляции",
+    "has_errors": "Есть ошибки",
+    "path": "Путь",
+    "modified": "Изменен",
+    "no_description": "Описание отсутствует"
+  },
+  "script_states": {
+    "compiled": "Скомпилирован",
+    "not_compiled": "Не скомпилирован",
+    "compiling": "Компилируется",
+    "running": "Выполняется",
+    "stopped": "Остановлен",
+    "error": "Ошибка",
+    "outdated": "Устарел"
+  },
+  "actions": {
+    "run": "Запустить",
+    "compile": "Компилировать",
+    "stop": "Остановить",
+    "debug": "Отладить",
+    "edit": "Редактировать",
+    "view_info": "Информация",
+    "view_source": "Исходный код"
+  },
+  "messages": {
+    "loading_error": "Ошибка загрузки скриптов",
+    "run_success": "Скрипт запущен успешно",
+    "run_error": "Ошибка запуска скрипта",
+    "compile_success": "Компиляция завершена успешно",
+    "compile_error": "Ошибка компиляции",
+    "no_scripts_found": "Скрипты не найдены. Добавьте файлы скриптов в систему."
+  },
+  "compilation": {
+    "optimization_level": "Уровень оптимизации",
+    "target_platform": "Целевая платформа",
+    "language_version": "Версия языка",
+    "dependencies": "Зависимости",
+    "output_type": "Тип вывода",
+    "debug_symbols": "Отладочные символы",
+    "warnings_as_errors": "Предупреждения как ошибки"
+  },
+  "script_types": {
+    "strategy": "Торговая стратегия",
+    "indicator": "Индикатор",
+    "optimizer": "Оптимизатор",
+    "scanner": "Сканер рынка",
+    "utility": "Утилита",
+    "library": "Библиотека",
+    "unknown": "Неизвестный тип"
+  },
+  "performance": {
+    "compilation_time": "Время компиляции",
+    "execution_time": "Время выполнения",
+    "memory_usage": "Использование памяти",
+    "cpu_usage": "Использование CPU"
+  },
+  "file_info": {
+    "file_size": "Размер файла",
+    "lines_of_code": "Строк кода",
+    "last_modified": "Последнее изменение",
+    "created_date": "Дата создания",
+    "encoding": "Кодировка"
+  }
+}

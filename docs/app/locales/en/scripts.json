@@ -1,0 +1,80 @@
+{
+  "page_title": "Script Management",
+  "page_description": "Compile and execute trading strategies",
+  "compile_dialog": {
+    "title": "Script Compilation",
+    "compilation_params": "Compilation Parameters",
+    "optimized_compilation": "Optimized Compilation",
+    "generate_debug_info": "Generate Debug Information",
+    "compilation_success": "Compilation completed successfully",
+    "compilation_error": "Compilation error",
+    "errors": "Errors",
+    "warnings": "Warnings",
+    "compiled_assembly": "Compiled Assembly (path)"
+  },
+  "script_info": {
+    "compiled": "Compiled",
+    "requires_compilation": "Requires Compilation",
+    "has_errors": "Has Errors",
+    "path": "Path",
+    "modified": "Modified",
+    "no_description": "No description available"
+  },
+  "script_states": {
+    "compiled": "Compiled",
+    "not_compiled": "Not Compiled",
+    "compiling": "Compiling",
+    "running": "Running",
+    "stopped": "Stopped",
+    "error": "Error",
+    "outdated": "Outdated"
+  },
+  "actions": {
+    "run": "Run",
+    "compile": "Compile",
+    "stop": "Stop",
+    "debug": "Debug",
+    "edit": "Edit",
+    "view_info": "Information",
+    "view_source": "Source Code"
+  },
+  "messages": {
+    "loading_error": "Error loading scripts",
+    "run_success": "Script started successfully",
+    "run_error": "Error running script",
+    "compile_success": "Compilation completed successfully",
+    "compile_error": "Compilation error",
+    "no_scripts_found": "No scripts found. Add script files to the system."
+  },
+  "compilation": {
+    "optimization_level": "Optimization Level",
+    "target_platform": "Target Platform",
+    "language_version": "Language Version",
+    "dependencies": "Dependencies",
+    "output_type": "Output Type",
+    "debug_symbols": "Debug Symbols",
+    "warnings_as_errors": "Warnings as Errors"
+  },
+  "script_types": {
+    "strategy": "Trading Strategy",
+    "indicator": "Indicator",
+    "optimizer": "Optimizer",
+    "scanner": "Market Scanner",
+    "utility": "Utility",
+    "library": "Library",
+    "unknown": "Unknown Type"
+  },
+  "performance": {
+    "compilation_time": "Compilation Time",
+    "execution_time": "Execution Time",
+    "memory_usage": "Memory Usage",
+    "cpu_usage": "CPU Usage"
+  },
+  "file_info": {
+    "file_size": "File Size",
+    "lines_of_code": "Lines of Code",
+    "last_modified": "Last Modified",
+    "created_date": "Created Date",
+    "encoding": "Encoding"
+  }
+}

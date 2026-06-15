@@ -1,0 +1,71 @@
+{
+  "page_title": "Trading Charts for {agentName}",
+  "title": "Trading Charts", 
+  "description": "Real-time trading charts and technical analysis for automated trading strategies",
+  "loading": "Loading chart data...",
+  "symbol": "Symbol",
+  "window": "Chart Window",
+  "refresh": "Refresh",
+  "sync": "Sync Charts",
+  "noData": {
+    "title": "Chart data unavailable",
+    "description": "No trading data is currently available for this agent. The agent may need to be started or configured with a data source."
+  },
+  "error": {
+    "title": "Chart loading error",
+    "retry": "Retry"
+  },
+  "sync_advanced": {
+    "enable_sync": "Enable chart synchronization",
+    "disable_sync": "Disable chart synchronization",
+    "synchronization_enabled": "Chart synchronization enabled",
+    "synchronization_disabled": "Chart synchronization disabled"
+  },
+  "debug": {
+    "enable_debug_mode": "Enable debug mode",
+    "disable_debug_mode": "Disable debug mode",
+    "show_diagnostics_summary": "Show diagnostics summary",
+    "clear_diagnostics": "Clear diagnostic data",
+    "run_full_diagnostics": "Run full system diagnostics",
+    "emergency_hotfix": "🚨 Emergency chart hotfix",
+    "debug_mode_enabled": "Debug mode enabled",
+    "debug_mode_disabled": "Debug mode disabled"
+  },
+  "controls": {
+    "zoom_in": "Zoom In",
+    "zoom_out": "Zoom Out",
+    "reset_zoom": "Reset Zoom",
+    "fullscreen": "Fullscreen"
+  },
+  "messages": {
+    "no_data_available": "No data available for display",
+    "no_chart_data_for_agent": "Chart data for agent \"{{agentName}}\" is not available.",
+    "ensure_agent_running": "Make sure the agent is running and generating data.",
+    "no_panes_in_window": "No panes available in window: {{windowName}}",
+    "chart_loading": "Loading chart...",
+    "chart_error": "Chart loading error",
+    "retry_loading": "Retry loading"
+  },
+  "panels": {
+    "price_chart": "Price Chart",
+    "volume_chart": "Volume Chart", 
+    "indicator_chart": "Indicator Chart",
+    "trades_chart": "Trades Chart"
+  },
+  "timeframes": {
+    "1m": "1 minute",
+    "5m": "5 minutes",
+    "15m": "15 minutes",
+    "1h": "1 hour",
+    "4h": "4 hours",
+    "1d": "1 day",
+    "1w": "1 week"
+  },
+  "indicators": {
+    "moving_average": "Moving Average",
+    "rsi": "RSI",
+    "macd": "MACD",
+    "bollinger_bands": "Bollinger Bands",
+    "volume": "Volume"
+  }
+}

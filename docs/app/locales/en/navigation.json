@@ -1,0 +1,29 @@
+{
+  "main_menu": {
+    "dashboard": "Dashboard",
+    "data_sources": "Data Sources",
+    "scripts": "Scripts",
+    "agents": "Trading Agents"
+  },
+  "app_title": "TSLab Console",
+  "log_panel": "Log Panel",
+  "connection_status": {
+    "connected": "Connected",
+    "disconnected": "Disconnected"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "data_sources": "Data Sources",
+    "scripts": "Scripts",
+    "agents": "Trading Agents",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "quick_actions": {
+    "connect_all_sources": "Connect All Sources",
+    "start_all_agents": "Start All Agents",
+    "compile_scripts": "Compile Scripts",
+    "clear_logs": "Clear Logs"
+  }
+}

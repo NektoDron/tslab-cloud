@@ -1,0 +1,58 @@
+{
+  "page_title": "TSLab Dashboard",
+  "page_description": "System status overview and main components",
+  "stats": {
+    "data_sources": "Data Sources",
+    "trading_agents": "Trading Agents",
+    "scripts": "Scripts",
+    "performance": "Performance"
+  },
+  "counters": {
+    "connected_sources": "Sources Connected",
+    "active_agents": "Active Agents",
+    "compiled_scripts": "Compiled"
+  },
+  "system_status": {
+    "title": "System Status",
+    "all_services_normal": "All critical services are running normally",
+    "last_data_update": "Last data update",
+    "signalr_connection": "SignalR connection active",
+    "database_available": "Database available"
+  },
+  "quick_actions": {
+    "title": "Quick Actions",
+    "connect_all_sources": "Connect All Sources",
+    "start_all_agents": "Start All Agents",
+    "compile_scripts": "Compile Scripts",
+    "clear_logs": "Clear Logs"
+  },
+  "performance_metrics": {
+    "cpu_usage": "CPU",
+    "memory_usage": "RAM",
+    "network_usage": "Net",
+    "disk_usage": "Disk",
+    "response_time": "Response Time"
+  },
+  "system_info": {
+    "uptime": "Uptime",
+    "version": "Version",
+    "build": "Build",
+    "platform": "Platform",
+    "memory_total": "Total Memory",
+    "memory_used": "Used Memory",
+    "connections": "Connections"
+  },
+  "recent_activity": {
+    "title": "Recent Activity",
+    "no_activity": "No activity",
+    "show_more": "Show More",
+    "refresh": "Refresh"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "no_alerts": "No active alerts",
+    "critical": "Critical",
+    "warning": "Warnings",
+    "info": "Informational"
+  }
+}

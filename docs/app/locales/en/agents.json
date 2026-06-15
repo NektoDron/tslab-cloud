@@ -1,0 +1,80 @@
+{
+  "page_title": "Trading Agents",
+  "page_description": "Manage automated trading strategies",
+  "status_dialog": {
+    "title": "Agent Status",
+    "state": "State",
+    "current_positions": "Current Positions",
+    "total_profit": "Total Profit",
+    "today_profit": "Today's Profit",
+    "last_activity": "Last Activity"
+  },
+  "logs_dialog": {
+    "title": "Agent Logs",
+    "no_logs_found": "No logs found"
+  },
+  "agent_info": {
+    "profit": "Profit",
+    "positions": "Positions",
+    "profit_display": "Profit: {{profit}}",
+    "last_start_time": "Last Start",
+    "last_stop_time": "Last Stop",
+    "no_description": "No description available"
+  },
+  "agent_states": {
+    "running": "Running",
+    "stopped": "Stopped",
+    "starting": "Starting",
+    "stopping": "Stopping",
+    "error": "Error",
+    "paused": "Paused",
+    "unknown": "Unknown"
+  },
+  "actions": {
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "pause": "Pause",
+    "resume": "Resume",
+    "view_status": "Detailed Status",
+    "view_logs": "View Logs",
+    "back_to_agents": "Back to Agents List"
+  },
+  "messages": {
+    "loading_error": "Error loading trading agents",
+    "start_error": "Error starting agent",
+    "stop_error": "Error stopping agent",
+    "restart_error": "Error restarting agent",
+    "status_fetch_error": "Error fetching agent status",
+    "logs_fetch_error": "Error fetching agent logs",
+    "no_agents_found": "No trading agents found. Check system configuration.",
+    "agent_not_specified": "Agent not specified"
+  },
+  "log_levels": {
+    "trace": "Trace",
+    "debug": "Debug",
+    "info": "Info",
+    "warn": "Warning",
+    "error": "Error",
+    "fatal": "Fatal"
+  },
+  "performance": {
+    "profit_today": "Today's Profit",
+    "profit_total": "Total Profit",
+    "profit_percent": "Return (%)",
+    "positions_open": "Open Positions",
+    "positions_total": "Total Positions",
+    "trades_today": "Today's Trades",
+    "trades_total": "Total Trades",
+    "drawdown_max": "Max Drawdown",
+    "sharpe_ratio": "Sharpe Ratio",
+    "win_rate": "Win Rate"
+  },
+  "risk_management": {
+    "max_position_size": "Max Position Size",
+    "max_drawdown": "Max Drawdown",
+    "risk_per_trade": "Risk Per Trade",
+    "stop_loss": "Stop Loss",
+    "take_profit": "Take Profit"
+  }
+}

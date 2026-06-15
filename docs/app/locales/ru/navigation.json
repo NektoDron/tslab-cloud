@@ -1,0 +1,29 @@
+{
+  "main_menu": {
+    "dashboard": "Панель управления",
+    "data_sources": "Поставщики данных",
+    "scripts": "Скрипты",
+    "agents": "Торговые агенты"
+  },
+  "app_title": "TSLab Console",
+  "log_panel": "Панель логов",
+  "connection_status": {
+    "connected": "Подключено",
+    "disconnected": "Отключено"
+  },
+  "breadcrumbs": {
+    "home": "Главная",
+    "dashboard": "Панель управления",
+    "data_sources": "Поставщики данных",
+    "scripts": "Скрипты", 
+    "agents": "Торговые агенты",
+    "settings": "Настройки",
+    "help": "Справка"
+  },
+  "quick_actions": {
+    "connect_all_sources": "Подключить все источники",
+    "start_all_agents": "Запустить все агенты",
+    "compile_scripts": "Скомпилировать скрипты",
+    "clear_logs": "Очистить логи"
+  }
+}

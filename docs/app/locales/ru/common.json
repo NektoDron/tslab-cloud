@@ -1,0 +1,93 @@
+{
+  "actions": {
+    "connect": "Подключить",
+    "disconnect": "Отключить",
+    "start": "Запустить",
+    "stop": "Остановить",
+    "restart": "Перезапуск",
+    "compile": "Компилировать",
+    "run": "Запустить",
+    "refresh": "Обновить",
+    "close": "Закрыть",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "view": "Просмотр",
+    "clear": "Очистить"
+  },
+  "status": {
+    "connected": "Подключено",
+    "disconnected": "Отключено",
+    "connecting": "Подключается...",
+    "running": "Запущен",
+    "stopped": "Остановлен",
+    "compiled": "Скомпилирован",
+    "not_compiled": "Требует компиляции",
+    "ready": "Готов к работе",
+    "not_ready": "Не готов",
+    "online": "В сети",
+    "offline": "Не в сети",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "warning": "Предупреждение"
+  },
+  "labels": {
+    "name": "Название",
+    "description": "Описание",
+    "type": "Тип",
+    "group": "Группа",
+    "broker": "Брокер",
+    "path": "Путь",
+    "size": "Размер",
+    "date": "Дата",
+    "time": "Время",
+    "profit": "Прибыль",
+    "positions": "Позиции",
+    "instruments": "Инструменты",
+    "last_update": "Последнее обновление",
+    "last_modified": "Изменен",
+    "last_start": "Последний запуск",
+    "last_stop": "Последняя остановка",
+    "last_activity": "Последняя активность"
+  },
+  "tooltips": {
+    "refresh_list": "Обновить список",
+    "detailed_status": "Подробный статус",
+    "view_logs": "Просмотр логов",
+    "script_info": "Информация о скрипте",
+    "connect_all": "Подключить все источники",
+    "start_all": "Запустить все агенты",
+    "compile_all": "Скомпилировать скрипты",
+    "clear_logs": "Очистить логи",
+    "change_language": "Изменить язык"
+  },
+  "messages": {
+    "loading_error": "Ошибка загрузки данных",
+    "connection_error": "Ошибка подключения",
+    "action_failed": "Операция не выполнена",
+    "no_data": "Данные отсутствуют",
+    "operation_success": "Операция выполнена успешно",
+    "confirm_action": "Подтвердите действие",
+    "unsaved_changes": "Несохраненные изменения"
+  },
+  "units": {
+    "bytes": "Байт",
+    "kb": "КБ", 
+    "mb": "МБ",
+    "gb": "ГБ",
+    "percent": "%",
+    "pieces": "шт",
+    "currency": "₽"
+  },
+  "time_formats": {
+    "just_now": "только что",
+    "minute_ago": "минуту назад",
+    "minutes_ago": "минут назад",
+    "hour_ago": "час назад",
+    "hours_ago": "часов назад",
+    "day_ago": "день назад",
+    "days_ago": "дней назад"
+  }
+}

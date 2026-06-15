@@ -1,0 +1,69 @@
+{
+  "page_title": "Data Sources",
+  "page_description": "Manage connections to market data sources",
+  "status_dialog": {
+    "title": "Data Source Status",
+    "connection_state": "Connection State",
+    "provider_group": "Provider Group",
+    "broker_name": "Broker",
+    "last_connect": "Last Connect",
+    "last_disconnect": "Last Disconnect",
+    "last_status_change": "Last Status Change",
+    "connection_message": "Connection Message",
+    "server_time": "Server Time",
+    "additional_info": "Additional Information"
+  },
+  "connection_states": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting",
+    "disconnecting": "Disconnecting",
+    "reconnecting": "Reconnecting",
+    "error": "Connection Error",
+    "unknown": "Unknown"
+  },
+  "provider_info": {
+    "ready_to_work": "Ready to Work",
+    "not_ready": "Not Ready",
+    "can_place_orders": "Can Place Orders",
+    "connection_lost": "Connection Lost",
+    "data_feed_status": "Data Feed Status",
+    "instruments_loaded": "Instruments Loaded"
+  },
+  "actions": {
+    "connect_with_reconnect": "Connect (Force Reconnect)",
+    "disconnect_graceful": "Graceful Disconnect",
+    "view_status": "Status",
+    "refresh_list": "Refresh List"
+  },
+  "messages": {
+    "loading_error": "Error loading data sources",
+    "connection_error": "Connection error",
+    "disconnection_error": "Disconnection error",
+    "no_sources_found": "No data sources found. Check system configuration.",
+    "status_fetch_error": "Error fetching status",
+    "invalid_notification": "Invalid status notification",
+    "subscription_error": "Error subscribing to DataSources notifications"
+  },
+  "broker_groups": {
+    "interactive_brokers": "Interactive Brokers",
+    "alor": "Alor",
+    "tinkoff": "Tinkoff",
+    "quik": "QUIK",
+    "smart_com": "SmartCOM",
+    "transaq": "TransaqDS",
+    "crypto": "Cryptocurrency Exchanges",
+    "iqfeed": "IQFeed",
+    "lmax": "LMAX",
+    "dukascopy": "Dukascopy",
+    "rithmic": "Rithmic",
+    "unknown": "Unknown"
+  },
+  "data_feed_statuses": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "delayed": "Delayed",
+    "error": "Error",
+    "unknown": "Unknown"
+  }
+}

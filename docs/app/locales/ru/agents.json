@@ -1,0 +1,80 @@
+{
+  "page_title": "Торговые агенты",
+  "page_description": "Управление автоматическими торговыми стратегиями",
+  "status_dialog": {
+    "title": "Статус агента",
+    "state": "Состояние",
+    "current_positions": "Текущие позиции",
+    "total_profit": "Общая прибыль", 
+    "today_profit": "Прибыль за сегодня",
+    "last_activity": "Последняя активность"
+  },
+  "logs_dialog": {
+    "title": "Логи агента",
+    "no_logs_found": "Логи не найдены"
+  },
+  "agent_info": {
+    "profit": "Прибыль",
+    "positions": "Позиций",
+    "profit_display": "Прибыль: {{profit}}",
+    "last_start_time": "Последний запуск",
+    "last_stop_time": "Последняя остановка",
+    "no_description": "Описание отсутствует"
+  },
+  "agent_states": {
+    "running": "Запущен",
+    "stopped": "Остановлен",
+    "starting": "Запускается",
+    "stopping": "Останавливается", 
+    "error": "Ошибка",
+    "paused": "На паузе",
+    "unknown": "Неизвестно"
+  },
+  "actions": {
+    "start": "Запустить",
+    "stop": "Остановить",
+    "restart": "Перезапуск",
+    "pause": "Пауза",
+    "resume": "Продолжить",
+    "view_status": "Подробный статус",
+    "view_logs": "Просмотр логов",
+    "back_to_agents": "Вернуться к списку агентов"
+  },
+  "messages": {
+    "loading_error": "Ошибка загрузки торговых агентов",
+    "start_error": "Ошибка запуска агента",
+    "stop_error": "Ошибка остановки агента",
+    "restart_error": "Ошибка перезапуска агента",
+    "status_fetch_error": "Ошибка получения статуса агента",
+    "logs_fetch_error": "Ошибка получения логов агента",
+    "no_agents_found": "Торговые агенты не найдены. Проверьте конфигурацию системы.",
+    "agent_not_specified": "Агент не указан"
+  },
+  "log_levels": {
+    "trace": "Трассировка",
+    "debug": "Отладка", 
+    "info": "Информация",
+    "warn": "Предупреждение",
+    "error": "Ошибка",
+    "fatal": "Критическая ошибка"
+  },
+  "performance": {
+    "profit_today": "Прибыль за сегодня",
+    "profit_total": "Общая прибыль",
+    "profit_percent": "Доходность (%)",
+    "positions_open": "Открытых позиций",
+    "positions_total": "Всего позиций",
+    "trades_today": "Сделок за сегодня",
+    "trades_total": "Всего сделок",
+    "drawdown_max": "Макс. просадка",
+    "sharpe_ratio": "Коэффициент Шарпа",
+    "win_rate": "Процент прибыльных сделок"
+  },
+  "risk_management": {
+    "max_position_size": "Макс. размер позиции",
+    "max_drawdown": "Макс. просадка",
+    "risk_per_trade": "Риск на сделку",
+    "stop_loss": "Стоп-лосс",
+    "take_profit": "Тейк-профит"
+  }
+}

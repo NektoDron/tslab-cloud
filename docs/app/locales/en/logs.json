@@ -1,0 +1,57 @@
+{
+  "title": "System Logs",
+  "description": "View and manage system event logs",
+  "systemLogs": "System Event Logs",
+  "totalEntries": "Total: {count} entries",
+  "loadMore": "Load More",
+  "clear": "Clear All Logs",
+  "confirmClear": "Are you sure you want to clear all logs? This action cannot be undone.",
+  "logDetails": "Log Entry Details",
+  "noLogsFound": "No log entries found",
+  "filters": {
+    "category": "Category",
+    "level": "Level",
+    "search": "Search messages",
+    "limit": "Items per page",
+    "allCategories": "All Categories",
+    "allLevels": "All Levels"
+  },
+  "search": {
+    "placeholder": "Search log messages..."
+  },
+  "actions": {
+    "clear": "Clear Logs",
+    "close": "Close Panel"
+  },
+  "columns": {
+    "eventId": "Event ID",
+    "level": "Level",
+    "timestamp": "Timestamp",
+    "category": "Category",
+    "script": "Script",
+    "message": "Message",
+    "machine": "Machine",
+    "actions": "Actions"
+  },
+  "timestamp": "Timestamp",
+  "level": "Level",
+  "category": "Category",
+  "message": "Message",
+  "exception": "Exception",
+  "properties": "Properties",
+  "machine": "Machine Name",
+  "processId": "Process ID",
+  "threadId": "Thread ID",
+  "categories": {
+    "general": "General",
+    "dataSources": "Data Sources",
+    "agents": "Trading Agents",
+    "scripts": "Scripts",
+    "console": "Console",
+    "system": "System"
+  },
+  "empty": {
+    "title": "No log entries",
+    "subtitle": "System logs will be displayed here"
+  }
+}

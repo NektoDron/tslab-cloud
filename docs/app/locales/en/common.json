@@ -1,0 +1,93 @@
+{
+  "actions": {
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "compile": "Compile",
+    "run": "Run",
+    "refresh": "Refresh",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "clear": "Clear"
+  },
+  "status": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting...",
+    "running": "Running",
+    "stopped": "Stopped",
+    "compiled": "Compiled",
+    "not_compiled": "Needs Compilation",
+    "ready": "Ready",
+    "not_ready": "Not Ready",
+    "online": "Online",
+    "offline": "Offline",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning"
+  },
+  "labels": {
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "group": "Group",
+    "broker": "Broker",
+    "path": "Path",
+    "size": "Size",
+    "date": "Date",
+    "time": "Time",
+    "profit": "Profit",
+    "positions": "Positions",
+    "instruments": "Instruments",
+    "last_update": "Last Update",
+    "last_modified": "Last Modified",
+    "last_start": "Last Start",
+    "last_stop": "Last Stop",
+    "last_activity": "Last Activity"
+  },
+  "tooltips": {
+    "refresh_list": "Refresh List",
+    "detailed_status": "Detailed Status",
+    "view_logs": "View Logs",
+    "script_info": "Script Information",
+    "connect_all": "Connect All Sources",
+    "start_all": "Start All Agents",
+    "compile_all": "Compile Scripts",
+    "clear_logs": "Clear Logs",
+    "change_language": "Change Language"
+  },
+  "messages": {
+    "loading_error": "Data Loading Error",
+    "connection_error": "Connection Error",
+    "action_failed": "Operation Failed",
+    "no_data": "No Data Available",
+    "operation_success": "Operation Completed Successfully",
+    "confirm_action": "Confirm Action",
+    "unsaved_changes": "Unsaved Changes"
+  },
+  "units": {
+    "bytes": "Bytes",
+    "kb": "KB",
+    "mb": "MB",
+    "gb": "GB",
+    "percent": "%",
+    "pieces": "pcs",
+    "currency": "$"
+  },
+  "time_formats": {
+    "just_now": "just now",
+    "minute_ago": "a minute ago",
+    "minutes_ago": "minutes ago",
+    "hour_ago": "an hour ago",
+    "hours_ago": "hours ago",
+    "day_ago": "a day ago",
+    "days_ago": "days ago"
+  }
+}

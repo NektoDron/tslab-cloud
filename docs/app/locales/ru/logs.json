@@ -1,0 +1,36 @@
+{
+  "title": "Журнал событий",
+  "filters": {
+    "category": "Категория",
+    "level": "Уровень",
+    "allCategories": "Все категории",
+    "allLevels": "Все уровни"
+  },
+  "search": {
+    "placeholder": "Поиск..."
+  },
+  "actions": {
+    "clear": "Очистить логи",
+    "close": "Закрыть панель"
+  },
+  "columns": {
+    "eventId": "Event ID",
+    "level": "Тип",
+    "timestamp": "Время",
+    "category": "Категории",
+    "script": "Скрипт",
+    "message": "Сообщение"
+  },
+  "categories": {
+    "general": "Общие",
+    "dataSources": "Источники данных",
+    "agents": "Агенты",
+    "scripts": "Скрипты",
+    "console": "Консоль",
+    "system": "Система"
+  },
+  "empty": {
+    "title": "Нет сообщений",
+    "subtitle": "Все уведомления будут отображаться здесь"
+  }
+}

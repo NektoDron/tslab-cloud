@@ -1,0 +1,69 @@
+{
+  "page_title": "Поставщики данных",
+  "page_description": "Управление подключениями к источникам рыночных данных",
+  "status_dialog": {
+    "title": "Статус поставщика данных",
+    "connection_state": "Состояние подключения",
+    "provider_group": "Группа провайдера", 
+    "broker_name": "Брокер",
+    "last_connect": "Последнее подключение",
+    "last_disconnect": "Последнее отключение",
+    "last_status_change": "Последнее изменение статуса",
+    "connection_message": "Сообщение подключения",
+    "server_time": "Время сервера",
+    "additional_info": "Дополнительная информация"
+  },
+  "connection_states": {
+    "connected": "Подключен",
+    "disconnected": "Отключен", 
+    "connecting": "Подключается",
+    "disconnecting": "Отключается",
+    "reconnecting": "Переподключение",
+    "error": "Ошибка подключения",
+    "unknown": "Неизвестно"
+  },
+  "provider_info": {
+    "ready_to_work": "Готов к работе",
+    "not_ready": "Не готов",
+    "can_place_orders": "Может размещать заявки",
+    "connection_lost": "Потеряно соединение",
+    "data_feed_status": "Статус потока данных",
+    "instruments_loaded": "Инструментов загружено"
+  },
+  "actions": {
+    "connect_with_reconnect": "Подключить (переподключение)",
+    "disconnect_graceful": "Корректно отключить",
+    "view_status": "Статус",
+    "refresh_list": "Обновить список"
+  },
+  "messages": {
+    "loading_error": "Ошибка загрузки источников данных",
+    "connection_error": "Ошибка подключения",
+    "disconnection_error": "Ошибка отключения", 
+    "no_sources_found": "Источники данных не найдены. Проверьте конфигурацию системы.",
+    "status_fetch_error": "Ошибка получения статуса",
+    "invalid_notification": "Некорректное уведомление о статусе",
+    "subscription_error": "Ошибка подписки на DataSources уведомления"
+  },
+  "broker_groups": {
+    "interactive_brokers": "Interactive Brokers",
+    "alor": "Алор",
+    "tinkoff": "Тинькофф",
+    "quik": "QUIK",
+    "smart_com": "SmartCOM",
+    "transaq": "TransaqDS",
+    "crypto": "Криптовалютные биржи",
+    "iqfeed": "IQFeed",
+    "lmax": "LMAX",
+    "dukascopy": "Dukascopy",
+    "rithmic": "Rithmic",
+    "unknown": "Неизвестно"
+  },
+  "data_feed_statuses": {
+    "active": "Активный",
+    "inactive": "Неактивный",
+    "delayed": "С задержкой",
+    "error": "Ошибка",
+    "unknown": "Неизвестен"
+  }
+}

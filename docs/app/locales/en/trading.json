@@ -1,0 +1,42 @@
+{
+  "title": "Trading",
+  "positions": {
+    "title": "Positions",
+    "open": "Open Positions",
+    "closed": "Closed Positions",
+    "total": "Total Positions"
+  },
+  "orders": {
+    "title": "Orders",
+    "active": "Active Orders",
+    "executed": "Executed Orders",
+    "cancelled": "Cancelled Orders"
+  },
+  "trades": {
+    "title": "Trades",
+    "recent": "Recent Trades",
+    "history": "Trade History"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "balance": "Balance",
+    "equity": "Equity",
+    "margin": "Margin",
+    "free_margin": "Free Margin"
+  },
+  "actions": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "close": "Close",
+    "cancel": "Cancel",
+    "modify": "Modify"
+  },
+  "status": {
+    "pending": "Pending",
+    "active": "Active",
+    "filled": "Filled",
+    "partial": "Partially Filled",
+    "cancelled": "Cancelled",
+    "rejected": "Rejected"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "page_title": "Панель управления TSLab",
+  "page_description": "Обзор состояния системы и основных компонентов",
+  "stats": {
+    "data_sources": "Источники данных",
+    "trading_agents": "Торговые агенты",
+    "scripts": "Скрипты",
+    "performance": "Производительность"
+  },
+  "counters": {
+    "connected_sources": "Подключено источников",
+    "active_agents": "Активных агентов", 
+    "compiled_scripts": "Скомпилировано"
+  },
+  "system_status": {
+    "title": "Статус системы",
+    "all_services_normal": "Все критические службы работают нормально",
+    "last_data_update": "Последнее обновление данных",
+    "signalr_connection": "SignalR подключение активно",
+    "database_available": "База данных доступна"
+  },
+  "quick_actions": {
+    "title": "Быстрые действия",
+    "connect_all_sources": "Подключить все источники",
+    "start_all_agents": "Запустить все агенты", 
+    "compile_scripts": "Скомпилировать скрипты",
+    "clear_logs": "Очистить логи"
+  },
+  "performance_metrics": {
+    "cpu_usage": "CPU",
+    "memory_usage": "RAM",
+    "network_usage": "Net",
+    "disk_usage": "Диск",
+    "response_time": "Время отклика"
+  },
+  "system_info": {
+    "uptime": "Время работы",
+    "version": "Версия",
+    "build": "Сборка",
+    "platform": "Платформа",
+    "memory_total": "Общая память",
+    "memory_used": "Используется память",
+    "connections": "Подключений"
+  },
+  "recent_activity": {
+    "title": "Последняя активность",
+    "no_activity": "Нет активности",
+    "show_more": "Показать больше",
+    "refresh": "Обновить"
+  },
+  "alerts": {
+    "title": "Уведомления",
+    "no_alerts": "Нет активных уведомлений",
+    "critical": "Критические",
+    "warning": "Предупреждения",
+    "info": "Информационные"
+  }
+}
