@@ -27,7 +27,20 @@ function Invoke-TSLabInstall {
 
   # --- Docker checks (use return, never exit) ---
   if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Fail "Docker Desktop не найден. Установите его: https://www.docker.com/products/docker-desktop/ и запустите команду снова."
+    Warn "Docker Desktop не найден."
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+      Say "Ставлю Docker Desktop через winget (может запросить права администратора)…"
+      winget install -e --id Docker.DockerDesktop --accept-source-agreements --accept-package-agreements
+      Write-Host ""
+      Warn "Docker Desktop установлен (или установка запущена). Дальше нужно сделать вручную — это особенность Windows:"
+      Write-Host "   1) Перезагрузите компьютер." -ForegroundColor Yellow
+      Write-Host "   2) Запустите Docker Desktop и дождитесь статуса 'Engine running' (значок-кит в трее)." -ForegroundColor Yellow
+      Write-Host "   3) Снова выполните:  irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex" -ForegroundColor Yellow
+      Write-Host "   Если winget не смог установить — скачайте вручную: https://www.docker.com/products/docker-desktop/" -ForegroundColor DarkGray
+    }
+    else {
+      Fail "Docker Desktop не найден, и winget в системе недоступен. Установите Docker Desktop вручную: https://www.docker.com/products/docker-desktop/  — затем запустите его (статус 'Engine running') и повторите команду."
+    }
     return
   }
   docker info 2>$null | Out-Null
