@@ -3,8 +3,8 @@
 # Что делает:
 #   1. Проверяет Docker Desktop.
 #   2. Тянет публичный образ tslabdev/tslab-console и запускает контейнер.
-#   3. Данные (БД, скрипты, настройки, сессия TSCloud) хранит в папке пользователя — переживают обновления.
-#   4. Логинит инстанс в ваш аккаунт TSCloud по device flow: код + QR печатаются в логи.
+#   3. Данные (БД, скрипты, настройки, сессия TSVerse) хранит в папке пользователя — переживают обновления.
+#   4. Логинит инстанс в ваш аккаунт TSVerse по device flow: код + QR печатаются в логи.
 #
 # Запуск (PowerShell):
 #   irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex
@@ -72,12 +72,12 @@ function Invoke-TSLabInstall {
     try { Invoke-WebRequest -UseBasicParsing "http://localhost:$Port/" -TimeoutSec 2 | Out-Null; break } catch { Start-Sleep 1 }
   }
 
-  Say "Проверяю вход в TSCloud (код появляется через ~30–60 сек)…"
+  Say "Проверяю вход в TSVerse (код появляется через ~30–60 сек)…"
   $success = $false; $codeShown = $false
   for ($i = 0; $i -lt 90; $i++) {
     $logs = (docker logs $Name 2>&1) -join "`n"
     if ($logs -match 'durable session restored') {
-      Ok "Сессия TSCloud восстановлена — повторный вход не нужен."; $success = $true; break
+      Ok "Сессия TSVerse восстановлена — повторный вход не нужен."; $success = $true; break
     }
     if ($logs -match 'Enter code:') {
       $code = ([regex]::Match($logs, 'Enter code:\s*(\S+)')).Groups[1].Value
@@ -85,12 +85,12 @@ function Invoke-TSLabInstall {
       if (-not $url) { $url = ([regex]::Match($logs, 'or open:\s*(\S+)')).Groups[1].Value }
       Write-Host ""
       Write-Host "────────────────────────────────────────────────────────────────"
-      Write-Host "  Вход в TSCloud"
+      Write-Host "  Вход в TSVerse"
       Write-Host "  1) Откройте: $url" -ForegroundColor Cyan
       Write-Host "  2) Код:      $code"
       Write-Host "  (или отсканируйте QR ниже)"
       Write-Host "────────────────────────────────────────────────────────────────"
-      $block = $logs -split "`n" | Select-String -Pattern 'TSCloud sign-in required \(device flow\)' -Context 0,40
+      $block = $logs -split "`n" | Select-String -Pattern 'TSVerse sign-in required \(device flow\)' -Context 0,40
       if ($block) { $block.Context.PostContext | ForEach-Object { Write-Host $_ } }
       try { Start-Process $url } catch {}
       $codeShown = $true; break
@@ -102,7 +102,7 @@ function Invoke-TSLabInstall {
     Say "Жду подтверждения на вашем устройстве (до 5 минут)…"
     for ($i = 0; $i -lt 150; $i++) {
       $logs = (docker logs $Name 2>&1) -join "`n"
-      if ($logs -match 'successfully connected to the notification system') { Ok "Подключено к TSCloud."; $success = $true; break }
+      if ($logs -match 'successfully connected to the notification system') { Ok "Подключено к TSVerse."; $success = $true; break }
       Start-Sleep 2
     }
     if (-not $success) { Warn "Подтверждение не получено за отведённое время. Откройте логи и завершите вход: docker logs -f $Name" }
@@ -112,7 +112,7 @@ function Invoke-TSLabInstall {
   }
 
   Write-Host ""
-  if ($success) { Ok "Готово. TSLab установлен и подключён к TSCloud." }
+  if ($success) { Ok "Готово. TSLab установлен и подключён к TSVerse." }
   else { Ok "TSLab установлен и запущен. Завершите вход по инструкции выше." }
   Write-Host @"
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSLab в облаке — установка на свой VPS</title>
-<meta name="description" content="Поставьте торговый сервер TSLab на свой Linux VPS одной командой и подключите к своему аккаунту TSCloud. Без админских навыков.">
+<meta name="description" content="Поставьте торговый сервер TSLab на свой Linux VPS одной командой и подключите к своему аккаунту TSVerse. Без админских навыков.">
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2b3340;
@@ -82,11 +82,11 @@
     <div class="logo"><span class="dot"></span> TSLab Cloud Server</div>
     <h1>TSLab на вашем VPS — одной командой</h1>
     <p class="sub">Поставьте торговый сервер TSLab на собственный Linux-сервер и подключите его
-      к своему аккаунту TSCloud. Без навыков системного администратора.</p>
+      к своему аккаунту TSVerse. Без навыков системного администратора.</p>
     <div class="badges">
       <span class="badge">🐧 Linux / 🍏 macOS / 🪟 Windows</span>
       <span class="badge">🐳 Docker</span>
-      <span class="badge">🔒 Вход через TSCloud (QR)</span>
+      <span class="badge">🔒 Вход через TSVerse (QR)</span>
       <span class="badge">♻️ Данные сохраняются</span>
     </div>
   </header>
@@ -97,7 +97,7 @@
     <div class="grid">
       <div class="card"><h4>VPS или сервер</h4><p>Любой Linux-сервер (Ubuntu/Debian и др.), 1–2 ГБ RAM. Подойдёт и домашний компьютер с Docker.</p></div>
       <div class="card"><h4>Доступ по SSH</h4><p>Обычный пользователь с правами <code>sudo</code> (или root). Так заходят на VPS у любого хостинга.</p></div>
-      <div class="card"><h4>Аккаунт TSCloud</h4><p>Ваш аккаунт на <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a>. Подтверждение входа — с телефона по QR.</p></div>
+      <div class="card"><h4>Аккаунт TSVerse</h4><p>Ваш аккаунт на <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a>. Подтверждение входа — с телефона по QR.</p></div>
       <div class="card"><h4>Docker</h4><p><b>Linux:</b> скрипт ставит Docker сам. <b>Windows:</b> нужен
         <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">Docker Desktop</a>
         — скрипт попробует поставить его через winget, но после установки потребуется перезагрузка и запуск Docker Desktop.</p></div>
@@ -108,7 +108,7 @@
   <section id="install">
     <h2><span class="n">1</span> Установка одной командой</h2>
     <p class="muted">Зайдите на сервер по SSH и вставьте команду. Она проверит/поставит Docker, скачает
-      TSLab, запустит его и доведёт до входа в TSCloud.</p>
+      TSLab, запустит его и доведёт до входа в TSVerse.</p>
 
     <div class="tabs">
       <div class="tab active" data-os="nix">Linux / macOS</div>
@@ -130,17 +130,17 @@
 
     <div class="note ok">Контейнер слушает только <b>localhost</b> — наружу ничего не открывается.
       Управлять сервером вы будете из <b>своего обычного TSLab</b> на компьютере: в нём выбираете
-      удалённый сервер, и команды идут на VPS через <b>TSCloud</b>. Открывать веб-интерфейс сервера в интернет не нужно.</div>
+      удалённый сервер, и команды идут на VPS через <b>TSVerse</b>. Открывать веб-интерфейс сервера в интернет не нужно.</div>
   </section>
 
   <!-- ШАГ 2 -->
   <section id="login">
-    <h2><span class="n">2</span> Вход в TSCloud (по коду / QR)</h2>
+    <h2><span class="n">2</span> Вход в TSVerse (по коду / QR)</h2>
     <p class="muted">Через <b>~30–60 секунд</b> после старта (сервер сперва пытается восстановить прошлую
       сессию) скрипт покажет короткий код, ссылку и QR-код прямо в терминале:</p>
     <div class="codewrap solo">
 <pre><code>────────────────────────────────────────────────
-  Вход в TSCloud
+  Вход в TSVerse
   1) Откройте на телефоне:  https://id.tsverse.pro/device
   2) Введите код:           WDJB-MJHT
   (или отсканируйте QR-код ниже)
@@ -154,8 +154,8 @@
     </div>
     <ol>
       <li>Отсканируйте <b>QR-код</b> телефоном (или откройте ссылку и введите код вручную).</li>
-      <li>Войдите в свой аккаунт TSCloud и нажмите <b>«Подтвердить»</b>.</li>
-      <li>Скрипт сам поймёт, что вход выполнен, и напишет <b>«Подключено к TSCloud»</b>.</li>
+      <li>Войдите в свой аккаунт TSVerse и нажмите <b>«Подтвердить»</b>.</li>
+      <li>Скрипт сам поймёт, что вход выполнен, и напишет <b>«Подключено к TSVerse»</b>.</li>
     </ol>
     <div class="note">Не видите код? Он появляется не сразу — <b>дождитесь</b> блока с QR в логах
       (используйте <code>-f</code>, чтобы они не обрывались):
@@ -169,7 +169,7 @@
   <section id="panel">
     <h2><span class="n">3</span> Управление через браузер</h2>
     <p class="muted">Сервером удобнее всего управлять из <b>веб-панели</b> — её не нужно устанавливать,
-      она открывается в любом браузере с любого устройства и общается с вашим VPS только через TSCloud
+      она открывается в любом браузере с любого устройства и общается с вашим VPS только через TSVerse
       (порты наружу открывать не надо).</p>
     <ol>
       <li><b>Откройте панель управления:</b>
@@ -179,13 +179,13 @@
         </div>
         <span class="muted">Прямая ссылка: <a href="app/" target="_blank" rel="noopener">nektodron.github.io/tslab-cloud/app/</a></span>
       </li>
-      <li>Нажмите <b>«Войти через Identity Server»</b> и авторизуйтесь под <b>тем же аккаунтом TSCloud</b>,
+      <li>Нажмите <b>«Войти через Identity Server»</b> и авторизуйтесь под <b>тем же аккаунтом TSVerse</b>,
         в который вошёл ваш сервер на шаге 2.</li>
       <li>Ваш сервер выберется <b>автоматически</b>. Если серверов несколько — выберите нужный в списке
         <b>«Target»</b> вверху страницы.</li>
-      <li>Готово — управляйте агентами, скриптами, графиками и сделками. Все команды идут на ваш VPS через TSCloud.</li>
+      <li>Готово — управляйте агентами, скриптами, графиками и сделками. Все команды идут на ваш VPS через TSVerse.</li>
     </ol>
-    <div class="note ok">Панель ничего не хранит у себя: вход — это ваш токен TSCloud в браузере, а данные
+    <div class="note ok">Панель ничего не хранит у себя: вход — это ваш токен TSVerse в браузере, а данные
       и команды идут напрямую на ваш сервер.</div>
   </section>
 
@@ -193,19 +193,19 @@
   <section id="manage">
     <h2>Служебное управление</h2>
     <p class="muted">Кроме веб-панели (<a href="#panel">шаг 3</a>), сервером можно управлять и из вашего
-      <b>обычного TSLab</b> на компьютере — выберите удалённый сервер, команды пойдут на VPS через TSCloud.
+      <b>обычного TSLab</b> на компьютере — выберите удалённый сервер, команды пойдут на VPS через TSVerse.
       Ниже — команды на самом сервере по SSH (логи, перезапуск, обновление):</p>
     <h3>Команды на сервере (по SSH)</h3>
     <div class="codewrap solo">
       <button class="copy">Копировать</button>
-<pre><code>docker logs -f tslab      # логи (и код входа в TSCloud)
+<pre><code>docker logs -f tslab      # логи (и код входа в TSVerse)
 docker restart tslab      # перезапуск (вход сохранится)
 docker stop tslab         # остановить
 docker rm -f tslab        # удалить контейнер (данные останутся)</code></pre>
     </div>
 
     <h3>Обновление до новой версии</h3>
-    <p class="muted">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSCloud сохранятся:</p>
+    <p class="muted">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSVerse сохранятся:</p>
     <div class="codewrap solo">
       <button class="copy">Копировать</button>
       <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash</code></pre>
@@ -216,11 +216,11 @@ docker rm -f tslab        # удалить контейнер (данные ос
   <section id="data">
     <h2>Данные и безопасность</h2>
     <ul>
-      <li><b>Где данные.</b> Всё (база, скрипты, настройки, сессия TSCloud) хранится на сервере в папке
+      <li><b>Где данные.</b> Всё (база, скрипты, настройки, сессия TSVerse) хранится на сервере в папке
         <code>~/.local/share/tslab</code>, а не внутри контейнера — поэтому переживает перезапуск и обновление.</li>
       <li><b>Бэкап.</b> <code>tar czf tslab-backup.tgz -C ~/.local/share/tslab .</code></li>
       <li><b>Управление — через ваш локальный TSLab.</b> В обычном TSLab на вашем компьютере выберите
-        удалённый сервер — запросы пойдут на VPS через TSCloud. Веб-интерфейс самого сервера для этого не
+        удалённый сервер — запросы пойдут на VPS через TSVerse. Веб-интерфейс самого сервера для этого не
         нужен: он слушает только <code>127.0.0.1:8088</code> и наружу не открыт.</li>
       <li><b>Прямой доступ к WebUI сервера (необязательно).</b> Если всё же хотите открыть его напрямую —
         пробросьте по SSH: <code>ssh -L 8088:localhost:8088 user@your-vps</code>, затем
@@ -247,7 +247,7 @@ docker rm -f tslab        # удалить контейнер (данные ос
         <b>Windows (PowerShell)</b>:
         <br><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></div></details>
 
-    <details><summary>Не увидел код входа в TSCloud</summary>
+    <details><summary>Не увидел код входа в TSVerse</summary>
       <div class="body">Код появляется через <b>~30–60 секунд</b> после старта (сервер сперва пытается
         восстановить прошлую сессию). Смотрите логи с <code>-f</code> и дождитесь блока с QR:
         <code>docker logs -f tslab</code>. Если вход уже был выполнен ранее, кода не будет — сессия

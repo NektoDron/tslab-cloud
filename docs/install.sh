@@ -5,9 +5,9 @@
 # Что делает:
 #   1. Проверяет Docker; если его нет — предлагает поставить (официальный get.docker.com).
 #   2. Тянет публичный образ tslabdev/tslab-console и запускает контейнер.
-#   3. Данные (БД, скрипты, настройки, сессия TSCloud) хранит в домашней папке пользователя,
+#   3. Данные (БД, скрипты, настройки, сессия TSVerse) хранит в домашней папке пользователя,
 #      поэтому они переживают рестарт и обновление образа.
-#   4. Логинит инстанс в ваш аккаунт TSCloud по OAuth device flow: контейнер печатает в логи
+#   4. Логинит инстанс в ваш аккаунт TSVerse по OAuth device flow: контейнер печатает в логи
 #      короткий код + QR; вы подтверждаете на телефоне. Проброс портов и доступ к WebUI не нужны.
 #
 # Запуск (одной строкой):
@@ -125,7 +125,7 @@ for _ in $(seq 1 60); do
   printf "."; sleep 1
 done
 
-# --- вход в TSCloud (device flow) -----------------------------------------
+# --- вход в TSVerse (device flow) -----------------------------------------
 open_url() {
   case "$OS" in
     Darwin) open "$1" >/dev/null 2>&1 || true ;;
@@ -133,13 +133,13 @@ open_url() {
   esac
 }
 
-say "Проверяю вход в TSCloud…"
+say "Проверяю вход в TSVerse…"
 CODE_SHOWN=0
 SUCCESS=0
 for _ in $(seq 1 90); do
   logs="$($DOCKER logs "$NAME" 2>&1 || true)"
   if printf "%s" "$logs" | grep -q "durable session restored"; then
-    ok "Сессия TSCloud восстановлена из сохранённых данных — повторный вход не нужен."
+    ok "Сессия TSVerse восстановлена из сохранённых данных — повторный вход не нужен."
     SUCCESS=1; break
   fi
   if printf "%s" "$logs" | grep -q "Enter code:"; then
@@ -148,13 +148,13 @@ for _ in $(seq 1 90); do
     [ -z "${vurl:-}" ] && vurl="$(printf "%s" "$logs" | sed -n 's/.*or open:[[:space:]]*//p' | head -1 | awk '{print $1}')"
     echo
     echo "${B}────────────────────────────────────────────────────────────────${Z}"
-    echo "${B}  Вход в TSCloud${Z}"
+    echo "${B}  Вход в TSVerse${Z}"
     echo "  1) Откройте на телефоне/в браузере:  ${C}${vurl}${Z}"
     echo "  2) Введите код:                      ${B}${code}${Z}"
     echo "  (или отсканируйте QR-код ниже из логов)"
     echo "${B}────────────────────────────────────────────────────────────────${Z}"
     # Показываем полный блок с QR-кодом так, как его печатает контейнер.
-    printf "%s\n" "$logs" | sed -n '/TSCloud sign-in required (device flow)/,/Waiting for confirmation/p'
+    printf "%s\n" "$logs" | sed -n '/TSVerse sign-in required (device flow)/,/Waiting for confirmation/p'
     echo
     open_url "$vurl"
     CODE_SHOWN=1
@@ -168,7 +168,7 @@ if [ "$CODE_SHOWN" = "1" ]; then
   for _ in $(seq 1 150); do
     logs="$($DOCKER logs "$NAME" 2>&1 || true)"
     if printf "%s" "$logs" | grep -q "successfully connected to the notification system"; then
-      ok "Подключено к TSCloud."
+      ok "Подключено к TSVerse."
       SUCCESS=1; break
     fi
     sleep 2
@@ -183,21 +183,21 @@ fi
 # --- итог -----------------------------------------------------------------
 echo
 if [ "$SUCCESS" = "1" ]; then
-  ok "${B}Готово. TSLab установлен и подключён к TSCloud.${Z}"
+  ok "${B}Готово. TSLab установлен и подключён к TSVerse.${Z}"
 else
-  ok "${B}TSLab установлен и запущен.${Z} Завершите вход в TSCloud по инструкции выше."
+  ok "${B}TSLab установлен и запущен.${Z} Завершите вход в TSVerse по инструкции выше."
 fi
 cat <<EOF
 
 ${B}Управление:${Z}
-  $DOCKER logs -f ${NAME}        # логи (и код входа в TSCloud)
+  $DOCKER logs -f ${NAME}        # логи (и код входа в TSVerse)
   $DOCKER restart ${NAME}        # перезапуск (сессия восстановится из сохранённых данных)
   $DOCKER stop ${NAME}           # остановить
   $DOCKER rm -f ${NAME}          # удалить контейнер (данные в ${DATA_DIR} останутся)
 
 ${B}Обновление до новой версии:${Z}
   curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash
-  (повторный запуск подтянет свежий образ; данные и вход в TSCloud сохранятся)
+  (повторный запуск подтянет свежий образ; данные и вход в TSVerse сохранятся)
 
 ${B}Данные:${Z} ${DATA_DIR}
   Бэкап:  tar czf tslab-backup.tgz -C "${DATA_DIR}" .

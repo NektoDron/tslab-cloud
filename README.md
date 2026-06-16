@@ -1,7 +1,7 @@
 # TSLab Cloud Server — установка на свой VPS
 
 Поставьте торговый сервер **TSLab** на собственный Linux-сервер одной командой и подключите его
-к своему аккаунту **TSCloud**. Без навыков системного администратора.
+к своему аккаунту **TSVerse**. Без навыков системного администратора.
 
 **Страница с инструкцией:** https://nektodron.github.io/tslab-cloud/
 
@@ -21,13 +21,13 @@ irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex
 1. проверяет Docker и при необходимости ставит его (с подтверждением);
 2. тянет публичный образ [`tslabdev/tslab-console`](https://hub.docker.com/r/tslabdev/tslab-console) и запускает контейнер;
 3. хранит данные на хосте (`~/.local/share/tslab`) — переживают рестарт и обновление;
-4. логинит инстанс в TSCloud по OAuth device flow (RFC 8628): код + QR печатаются в логи,
+4. логинит инстанс в TSVerse по OAuth device flow (RFC 8628): код + QR печатаются в логи,
    подтверждение — с вашего телефона. Проброс портов и доступ к WebUI не требуются.
 
 ## Управление
 
 ```bash
-docker logs -f tslab      # логи (и код входа в TSCloud)
+docker logs -f tslab      # логи (и код входа в TSVerse)
 docker restart tslab      # перезапуск (вход сохранится)
 docker rm -f tslab        # удалить контейнер (данные останутся)
 ```
