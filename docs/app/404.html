@@ -5,23 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TSLab</title>
     <script>
-      // GitHub Pages SPA fallback (cloud deploy). GitHub serves this file for any unknown deep
-      // path, including the OAuth /auth/callback?code=... redirect.
+      // GitHub Pages SPA fallback (cloud build, hash routing).
       //
-      // It intentionally contains NO hashed bundle references. A 404.html that embeds hashed asset
-      // names goes stale after every deploy: a cached copy points at a now-deleted bundle and the
-      // page renders blank (black screen). Instead, stash the original deep link and bounce to the
-      // app entry, which always loads the current bundle. The app restores the route on boot
-      // (see src/services/spaRedirectRestore.ts). This file is static, so caching it is harmless.
+      // Normal app routes are hash routes (…/app/#/scripts) and load the real index.html, so this
+      // file is only ever hit by a stray history-style deep path — e.g. an old bookmark like
+      // …/app/scripts, or a hard reload of one. Convert it to the equivalent hash route and bounce
+      // to the app entry. Contains NO hashed bundle references, so a cached copy can't go stale.
       (function () {
         var base = '/tslab-cloud/app/';
-        try {
-          sessionStorage.setItem(
-            'spaRedirectPath',
-            location.pathname + location.search + location.hash
-          );
-        } catch (e) {}
-        location.replace(base);
+        var p = location.pathname;
+        var sub = p.indexOf(base) === 0 ? p.slice(base.length) : '';
+        location.replace(base + '#/' + sub + location.search);
       })();
     </script>
   </head>
