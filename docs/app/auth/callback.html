@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TSLab</title>
+    <script>
+      // Real 200 file at /auth/callback (GitHub Pages serves foo.html at /foo). It exists so GitHub
+      // NEVER falls through to its sticky, independently-cached 404 page for the OAuth callback — that
+      // fallback kept serving a stale build referencing deleted bundles, blanking the page.
+      //
+      // Contains NO hashed bundle references, so a cached copy can never go stale. Bounce to the app
+      // root carrying the ?code=&state= query; the app detects it on boot and runs the PKCE exchange
+      // (see src/services/spaRedirectRestore.ts). redirect_uri stays /auth/callback — only the landing
+      // page changed.
+      location.replace('/tslab-cloud/app/' + location.search);
+    </script>
+  </head>
+  <body></body>
+</html>
