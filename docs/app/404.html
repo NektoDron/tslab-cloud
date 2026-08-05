@@ -5,14 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TSLab</title>
     <script>
-      // GitHub Pages SPA fallback (cloud build, hash routing).
-      //
-      // Normal app routes are hash routes (…/app/#/scripts) and load the real index.html, so this
-      // file is only ever hit by a stray history-style deep path — e.g. an old bookmark like
-      // …/app/scripts, or a hard reload of one. Convert it to the equivalent hash route and bounce
-      // to the app entry. Contains NO hashed bundle references, so a cached copy can't go stale.
+      // SPA fallback for a stray history-style deep path. Convert it to the hash route.
+      // No hashed bundle refs -> a cached copy can't go stale.
       (function () {
-        var base = '/tslab-cloud/app/';
+        var base = "/tslab-cloud/app/";
         var p = location.pathname;
         var sub = p.indexOf(base) === 0 ? p.slice(base.length) : '';
         location.replace(base + '#/' + sub + location.search);

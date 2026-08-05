@@ -5,16 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TSLab</title>
     <script>
-      // Real 200 file at /auth/callback (GitHub Pages serves foo.html at /foo). It exists so GitHub
-      // NEVER falls through to its sticky, independently-cached 404 page for the OAuth callback — that
-      // fallback kept serving a stale build referencing deleted bundles, blanking the page.
-      //
-      // Contains NO hashed bundle references, so a cached copy can never go stale. The cloud build uses
-      // HASH routing, so redirect STRAIGHT to the hash route #/auth/callback carrying ?code=&state=.
-      // The router then resolves AuthCallback immediately (no reliance on an in-app replaceState, which
-      // ran too late after createWebHashHistory had already captured the location). redirect_uri stays
-      // /auth/callback — only the landing page changed.
-      location.replace('/tslab-cloud/app/#/auth/callback' + location.search);
+      // Real 200 file at /auth/callback so GitHub never falls through to its sticky stale 404 page.
+      // Hash routing -> redirect straight to the hash route carrying ?code=&state=, so the router
+      // resolves AuthCallback immediately. No hashed bundle refs -> a cached copy can't go stale.
+      location.replace("/tslab-cloud/app/#/auth/callback" + location.search);
     </script>
   </head>
   <body></body>
