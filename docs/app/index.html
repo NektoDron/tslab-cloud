@@ -12,10 +12,53 @@
     <link rel="apple-touch-icon" href="/tslab-cloud/app/logo192.png" />
     <link rel="manifest" href="/tslab-cloud/app/manifest.json" />
     <title>TSLab Web UI Vue</title>
-    <script type="module" crossorigin src="/tslab-cloud/app/assets/index-CrNdFx7d.js"></script>
+    <script>
+      // Hosted hash routing must see the external launch target before the module graph (and thus
+      // Vue Router) is evaluated. A module-side rewrite is too late because static imports run first.
+      (function () {
+        if ('true' !== 'true') return
+
+        try {
+          var pathParams = new URLSearchParams(location.search)
+          if (pathParams.has('code') && pathParams.has('state') && !location.hash.includes('/auth/callback')) {
+            history.replaceState(null, '', location.pathname + '#/auth/callback' + location.search)
+            return
+          }
+
+          var requestedPlayerId = (pathParams.get('id') || '').trim()
+          var guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+          if (!guidPattern.test(requestedPlayerId)) return
+
+          // Make the URL target authoritative before stores and API transports read persisted state.
+          localStorage.setItem('tslab.apiTarget.v1', JSON.stringify({
+            kind: 'remote',
+            compId: requestedPlayerId
+          }))
+
+          var hash = location.hash.startsWith('#/') ? location.hash.slice(1) : '/'
+          var queryIndex = hash.indexOf('?')
+          var routePath = queryIndex >= 0 ? hash.slice(0, queryIndex) : hash
+          var routeParams = new URLSearchParams(queryIndex >= 0 ? hash.slice(queryIndex + 1) : '')
+          routeParams.set('id', requestedPlayerId)
+          pathParams.delete('id')
+
+          var pathQuery = pathParams.toString()
+          var routeQuery = routeParams.toString()
+          history.replaceState(
+            null,
+            '',
+            location.pathname + (pathQuery ? '?' + pathQuery : '') +
+              '#' + (routePath || '/') + (routeQuery ? '?' + routeQuery : '')
+          )
+        } catch (_) {
+          // Storage/history may be unavailable in a restricted browser; the app still loads.
+        }
+      })()
+    </script>
+    <script type="module" crossorigin src="/tslab-cloud/app/assets/index-D0xle6Jr.js"></script>
     <link rel="modulepreload" crossorigin href="/tslab-cloud/app/assets/vue-vendor-DALmL_bs.js">
-    <link rel="modulepreload" crossorigin href="/tslab-cloud/app/assets/composables-BjMbRtR5.js">
-    <link rel="modulepreload" crossorigin href="/tslab-cloud/app/assets/pages-DLi_TO0k.js">
+    <link rel="modulepreload" crossorigin href="/tslab-cloud/app/assets/composables-BqZYTYic.js">
+    <link rel="modulepreload" crossorigin href="/tslab-cloud/app/assets/pages-CmIQKGcs.js">
     <link rel="stylesheet" crossorigin href="/tslab-cloud/app/assets/vue-vendor-m1x1Xg2k.css">
     <link rel="stylesheet" crossorigin href="/tslab-cloud/app/assets/pages-hPp0yvqb.css">
     <link rel="stylesheet" crossorigin href="/tslab-cloud/app/assets/index-DYBuDs2m.css">
