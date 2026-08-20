@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TSLab в облаке — установка на свой VPS</title>
 <meta name="description" content="Поставьте торговый сервер TSLab на свой Linux VPS одной командой и подключите к своему аккаунту TSVerse. Без админских навыков.">
+<script>
+  // Pick the page language before the first paint, so no block flashes in the wrong language.
+  (function () {
+    try {
+      var q = (location.search.match(/[?&]lang=(ru|en)\b/i) || [])[1];
+      var saved = null;
+      try { saved = localStorage.getItem('tslab-cloud-lang'); } catch (e) {}
+      var nav = /^ru/i.test(navigator.language || '') ? 'ru' : 'en';
+      var lang = (q || saved || nav).toLowerCase();
+      if (lang !== 'ru' && lang !== 'en') lang = 'ru';
+      document.documentElement.setAttribute('data-lang', lang);
+      document.documentElement.setAttribute('lang', lang);
+    } catch (e) {}
+  })();
+</script>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --border:#2b3340;
@@ -45,6 +60,16 @@
   .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
   .card h4{margin:0 0 6px;font-size:15px}
   .card p{margin:0;font-size:14px;color:var(--muted)}
+  /* language switcher */
+  .langsw{position:fixed;top:14px;right:14px;z-index:20;display:flex;gap:4px;
+    background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:4px}
+  .langsw button{border:none;background:transparent;color:var(--muted);cursor:pointer;
+    font:600 13px/1 inherit;padding:6px 12px;border-radius:999px;letter-spacing:.4px}
+  .langsw button:hover{color:var(--text)}
+  .langsw button[aria-pressed="true"]{background:var(--accent);color:#fff}
+  /* one language at a time */
+  html[data-lang="ru"] [data-l="en"]{display:none !important}
+  html[data-lang="en"] [data-l="ru"]{display:none !important}
   /* tabs */
   .tabs{display:flex;gap:6px;margin-bottom:0}
   .tab{padding:9px 16px;border:1px solid var(--border);border-bottom:none;background:var(--panel2);
@@ -72,29 +97,44 @@
   kbd{background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:13px;
     font-family:ui-monospace,monospace}
   footer{padding:40px 0 60px;text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--border)}
-  .step-flow{counter-reset:none}
 </style>
 </head>
 <body>
+
+<div class="langsw" role="group" aria-label="Language / Язык">
+  <button type="button" data-setlang="ru" aria-pressed="false">RU</button>
+  <button type="button" data-setlang="en" aria-pressed="false">EN</button>
+</div>
+
 <div class="wrap">
 
   <header class="hero">
     <div class="logo"><span class="dot"></span> TSLab Cloud Server</div>
-    <h1>TSLab на вашем VPS — одной командой</h1>
-    <p class="sub">Поставьте торговый сервер TSLab на собственный Linux-сервер и подключите его
+    <h1 data-l="ru">TSLab на вашем VPS — одной командой</h1>
+    <h1 data-l="en">TSLab on your VPS — in a single command</h1>
+    <p class="sub" data-l="ru">Поставьте торговый сервер TSLab на собственный Linux-сервер и подключите его
       к своему аккаунту TSVerse. Без навыков системного администратора.</p>
-    <div class="badges">
+    <p class="sub" data-l="en">Put the TSLab trading server on your own Linux machine and connect it to your
+      TSVerse account. No system administration skills required.</p>
+    <div class="badges" data-l="ru">
       <span class="badge">🐧 Linux / 🍏 macOS / 🪟 Windows</span>
       <span class="badge">🐳 Docker</span>
       <span class="badge">🔒 Вход через TSVerse (QR)</span>
       <span class="badge">♻️ Данные сохраняются</span>
     </div>
+    <div class="badges" data-l="en">
+      <span class="badge">🐧 Linux / 🍏 macOS / 🪟 Windows</span>
+      <span class="badge">🐳 Docker</span>
+      <span class="badge">🔒 TSVerse sign-in (QR)</span>
+      <span class="badge">♻️ Your data is kept</span>
+    </div>
   </header>
 
-  <!-- ТРЕБОВАНИЯ -->
+  <!-- REQUIREMENTS -->
   <section id="req">
-    <h2>Что нужно</h2>
-    <div class="grid">
+    <h2 data-l="ru">Что нужно</h2>
+    <h2 data-l="en">What you need</h2>
+    <div class="grid" data-l="ru">
       <div class="card"><h4>VPS или сервер</h4><p>Любой Linux-сервер (Ubuntu/Debian и др.), 1–2 ГБ RAM. Подойдёт и домашний компьютер с Docker.</p></div>
       <div class="card"><h4>Доступ по SSH</h4><p>Обычный пользователь с правами <code>sudo</code> (или root). Так заходят на VPS у любого хостинга.</p></div>
       <div class="card"><h4>Аккаунт TSVerse</h4><p>Ваш аккаунт на <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a>. Подтверждение входа — с телефона по QR.</p></div>
@@ -102,47 +142,83 @@
         <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">Docker Desktop</a>
         — скрипт попробует поставить его через winget, но после установки потребуется перезагрузка и запуск Docker Desktop.</p></div>
     </div>
+    <div class="grid" data-l="en">
+      <div class="card"><h4>A VPS or a server</h4><p>Any Linux machine (Ubuntu/Debian and others), 1–2 GB RAM. A home computer with Docker works too.</p></div>
+      <div class="card"><h4>SSH access</h4><p>A regular user with <code>sudo</code> rights (or root) — the standard way to log into a VPS at any hosting provider.</p></div>
+      <div class="card"><h4>A TSVerse account</h4><p>Your account at <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a>. The sign-in is confirmed from your phone via QR.</p></div>
+      <div class="card"><h4>Docker</h4><p><b>Linux:</b> the script installs Docker for you. <b>Windows:</b> you need
+        <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">Docker Desktop</a>
+        — the script tries winget, but after that you have to reboot and start Docker Desktop yourself.</p></div>
+    </div>
   </section>
 
-  <!-- ШАГ 1 -->
+  <!-- STEP 1 -->
   <section id="install">
-    <h2><span class="n">1</span> Установка одной командой</h2>
-    <p class="muted">Зайдите на сервер по SSH и вставьте команду. Она проверит/поставит Docker, скачает
+    <h2 data-l="ru"><span class="n">1</span> Установка одной командой</h2>
+    <h2 data-l="en"><span class="n">1</span> Install with one command</h2>
+    <p class="muted" data-l="ru">Зайдите на сервер по SSH и вставьте команду. Она проверит/поставит Docker, скачает
       TSLab, запустит его и доведёт до входа в TSVerse.</p>
+    <p class="muted" data-l="en">Log into the server over SSH and paste the command. It checks or installs Docker,
+      downloads TSLab, starts it and walks you through the TSVerse sign-in.</p>
 
     <div class="tabs">
       <div class="tab active" data-os="nix">Linux / macOS</div>
       <div class="tab" data-os="win">Windows (PowerShell)</div>
     </div>
 
-    <div class="codewrap" data-pane="nix">
+    <div class="codewrap" data-pane="nix" data-l="ru">
       <button class="copy">Копировать</button>
+      <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_LANG=ru bash</code></pre>
+    </div>
+    <div class="codewrap" data-pane="nix" data-l="en">
+      <button class="copy">Copy</button>
       <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash</code></pre>
     </div>
-    <div class="codewrap hide" data-pane="win">
+    <div class="codewrap hide" data-pane="win" data-l="ru">
       <button class="copy">Копировать</button>
+      <pre><code>$env:TSLAB_LANG='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></pre>
+    </div>
+    <div class="codewrap hide" data-pane="win" data-l="en">
+      <button class="copy">Copy</button>
       <pre><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></pre>
     </div>
 
-    <div class="note warn">⚠️ <b>Windows / PowerShell:</b> используйте вкладку <b>«Windows (PowerShell)»</b> выше
+    <div class="note" data-l="ru">🌐 <b>Язык установщика.</b> Установщик по умолчанию говорит по-английски и
+      переключается на русский переменной <code>TSLAB_LANG=ru</code> (она уже есть в команде выше).
+      Без неё язык берётся из локали сервера, но на не-UTF-8 терминале остаётся английским —
+      кириллица там превращается в «кракозябры».</div>
+    <div class="note" data-l="en">🌐 <b>Installer language.</b> The installer speaks English by default and
+      switches to Russian with <code>TSLAB_LANG=ru</code>. Without the variable it follows the server locale,
+      but stays English on a non-UTF-8 terminal, where Cyrillic would come out as mojibake.</div>
+
+    <div class="note warn" data-l="ru">⚠️ <b>Windows / PowerShell:</b> используйте вкладку <b>«Windows (PowerShell)»</b> выше
       (команду <code>irm … | iex</code>). Команда <code>curl … | bash</code> в PowerShell <b>не работает</b> —
       там <code>curl</code> это <code>Invoke-WebRequest</code>, и вы получите ошибку «Не удается найти параметр fsSL».</div>
+    <div class="note warn" data-l="en">⚠️ <b>Windows / PowerShell:</b> use the <b>“Windows (PowerShell)”</b> tab above
+      (the <code>irm … | iex</code> command). <code>curl … | bash</code> <b>does not work</b> in PowerShell —
+      there <code>curl</code> is an alias for <code>Invoke-WebRequest</code> and you get “A parameter cannot be found that matches parameter name 'fsSL'”.</div>
 
-    <div class="note ok">Контейнер слушает только <b>localhost</b> — наружу ничего не открывается.
+    <div class="note ok" data-l="ru">Контейнер слушает только <b>localhost</b> — наружу ничего не открывается.
       Управлять сервером вы будете из <b>своего обычного TSLab</b> на компьютере: в нём выбираете
       удалённый сервер, и команды идут на VPS через <b>TSVerse</b>. Открывать веб-интерфейс сервера в интернет не нужно.</div>
+    <div class="note ok" data-l="en">The container listens on <b>localhost</b> only — nothing is exposed to the
+      internet. You drive the server from <b>your usual TSLab</b> on your computer: pick the remote server there and
+      the commands travel to the VPS through <b>TSVerse</b>. There is no need to publish the server's web interface.</div>
   </section>
 
-  <!-- ШАГ 2 -->
+  <!-- STEP 2 -->
   <section id="login">
-    <h2><span class="n">2</span> Вход в TSVerse (по коду / QR)</h2>
-    <p class="muted">Через <b>~30–60 секунд</b> после старта (сервер сперва пытается восстановить прошлую
+    <h2 data-l="ru"><span class="n">2</span> Вход в TSVerse (по коду / QR)</h2>
+    <h2 data-l="en"><span class="n">2</span> Sign in to TSVerse (code / QR)</h2>
+    <p class="muted" data-l="ru">Через <b>~30–60 секунд</b> после старта (сервер сперва пытается восстановить прошлую
       сессию) скрипт покажет короткий код, ссылку и QR-код прямо в терминале:</p>
-    <div class="codewrap solo">
+    <p class="muted" data-l="en">About <b>30–60 seconds</b> after the start (the server first tries to restore the
+      previous session) the script prints a short code, a link and a QR code right in the terminal:</p>
+    <div class="codewrap solo" data-l="ru">
 <pre><code>────────────────────────────────────────────────
   Вход в TSVerse
-  1) Откройте на телефоне:  https://id.tsverse.pro/device
-  2) Введите код:           WDJB-MJHT
+  1) Откройте на телефоне / в браузере:  https://id.tsverse.pro/device
+  2) Введите код:                        WDJB-MJHT
   (или отсканируйте QR-код ниже)
 ────────────────────────────────────────────────
   █▀▀▀▀▀█ ▀▄█▀▄ █▀▀▀▀▀█
@@ -152,26 +228,54 @@
   ...
   Waiting for confirmation...</code></pre>
     </div>
-    <ol>
+    <div class="codewrap solo" data-l="en">
+<pre><code>----------------------------------------------------------------
+  Sign in to TSVerse
+  1) Open on your phone / in a browser:  https://id.tsverse.pro/device
+  2) Enter the code:                     WDJB-MJHT
+  (or scan the QR code printed below)
+----------------------------------------------------------------
+  █▀▀▀▀▀█ ▀▄█▀▄ █▀▀▀▀▀█
+  █ ███ █ █▀ ▄▀ █ ███ █
+  █ ▀▀▀ █ ▄█▀█▄ █ ▀▀▀ █
+  ▀▀▀▀▀▀▀ █▄▀▄█ ▀▀▀▀▀▀▀
+  ...
+  Waiting for confirmation...</code></pre>
+    </div>
+    <ol data-l="ru">
       <li>Отсканируйте <b>QR-код</b> телефоном (или откройте ссылку и введите код вручную).</li>
       <li>Войдите в свой аккаунт TSVerse и нажмите <b>«Подтвердить»</b>.</li>
       <li>Скрипт сам поймёт, что вход выполнен, и напишет <b>«Подключено к TSVerse»</b>.</li>
     </ol>
-    <div class="note">Не видите код? Он появляется не сразу — <b>дождитесь</b> блока с QR в логах
+    <ol data-l="en">
+      <li>Scan the <b>QR code</b> with your phone (or open the link and type the code in).</li>
+      <li>Sign into your TSVerse account and press <b>“Confirm”</b>.</li>
+      <li>The script notices the sign-in on its own and prints <b>“Connected to TSVerse”</b>.</li>
+    </ol>
+    <div class="note" data-l="ru">Не видите код? Он появляется не сразу — <b>дождитесь</b> блока с QR в логах
       (используйте <code>-f</code>, чтобы они не обрывались):
       <br><code>docker logs -f tslab</code>
       <br>Не успели за 5 минут — код просто обновится, новый будет там же.</div>
-    <div class="note ok">После первого входа сервер запоминает вас. При перезапуске и обновлении
+    <div class="note" data-l="en">No code yet? It does not appear immediately — <b>wait</b> for the QR block in the
+      logs (use <code>-f</code> so they keep streaming):
+      <br><code>docker logs -f tslab</code>
+      <br>Missed the 5-minute window? The code simply rotates and the new one shows up in the same place.</div>
+    <div class="note ok" data-l="ru">После первого входа сервер запоминает вас. При перезапуске и обновлении
       <b>повторно входить не нужно</b> — сессия восстанавливается автоматически.</div>
+    <div class="note ok" data-l="en">After the first sign-in the server remembers you. Restarts and updates
+      <b>do not need another sign-in</b> — the session is restored automatically.</div>
   </section>
 
-  <!-- ШАГ 3 -->
+  <!-- STEP 3 -->
   <section id="panel">
-    <h2><span class="n">3</span> Управление через браузер</h2>
-    <p class="muted">Сервером удобнее всего управлять из <b>веб-панели</b> — её не нужно устанавливать,
+    <h2 data-l="ru"><span class="n">3</span> Управление через браузер</h2>
+    <h2 data-l="en"><span class="n">3</span> Manage it from the browser</h2>
+    <p class="muted" data-l="ru">Сервером удобнее всего управлять из <b>веб-панели</b> — её не нужно устанавливать,
       она открывается в любом браузере с любого устройства и общается с вашим VPS только через TSVerse
       (порты наружу открывать не надо).</p>
-    <ol>
+    <p class="muted" data-l="en">The easiest way to run the server is the <b>web console</b> — nothing to install, it
+      opens in any browser on any device and talks to your VPS only through TSVerse (no ports to expose).</p>
+    <ol data-l="ru">
       <li><b>Откройте панель управления:</b>
         <div style="margin:10px 0">
           <a href="app/" target="_blank" rel="noopener"
@@ -185,37 +289,72 @@
         <b>«Target»</b> вверху страницы.</li>
       <li>Готово — управляйте агентами, скриптами, графиками и сделками. Все команды идут на ваш VPS через TSVerse.</li>
     </ol>
-    <div class="note ok">Панель ничего не хранит у себя: вход — это ваш токен TSVerse в браузере, а данные
+    <ol data-l="en">
+      <li><b>Open the web console:</b>
+        <div style="margin:10px 0">
+          <a href="app/" target="_blank" rel="noopener"
+             style="background:var(--accent);color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">🖥️ Open the web console →</a>
+        </div>
+        <span class="muted">Direct link: <a href="app/" target="_blank" rel="noopener">nektodron.github.io/tslab-cloud/app/</a></span>
+      </li>
+      <li>Press <b>“Sign in with Identity Server”</b> and use the <b>same TSVerse account</b> your server signed
+        into in step 2.</li>
+      <li>Your server is picked <b>automatically</b>. With several servers, choose one in the <b>“Target”</b>
+        selector at the top of the page.</li>
+      <li>That's it — run agents, scripts, charts and trades. Every command travels to your VPS through TSVerse.</li>
+    </ol>
+    <div class="note ok" data-l="ru">Панель ничего не хранит у себя: вход — это ваш токен TSVerse в браузере, а данные
       и команды идут напрямую на ваш сервер.</div>
+    <div class="note ok" data-l="en">The console stores nothing of its own: the sign-in is your TSVerse token in the
+      browser, and data and commands go straight to your server.</div>
   </section>
 
-  <!-- УПРАВЛЕНИЕ -->
+  <!-- MANAGEMENT -->
   <section id="manage">
-    <h2>Служебное управление</h2>
-    <p class="muted">Кроме веб-панели (<a href="#panel">шаг 3</a>), сервером можно управлять и из вашего
+    <h2 data-l="ru">Служебное управление</h2>
+    <h2 data-l="en">Housekeeping</h2>
+    <p class="muted" data-l="ru">Кроме веб-панели (<a href="#panel">шаг 3</a>), сервером можно управлять и из вашего
       <b>обычного TSLab</b> на компьютере — выберите удалённый сервер, команды пойдут на VPS через TSVerse.
       Ниже — команды на самом сервере по SSH (логи, перезапуск, обновление):</p>
-    <h3>Команды на сервере (по SSH)</h3>
-    <div class="codewrap solo">
+    <p class="muted" data-l="en">Besides the web console (<a href="#panel">step 3</a>) you can drive the server from
+      <b>your usual TSLab</b> on your computer — pick the remote server and the commands travel to the VPS through
+      TSVerse. Below are the commands you run on the server itself over SSH (logs, restart, update):</p>
+    <h3 data-l="ru">Команды на сервере (по SSH)</h3>
+    <h3 data-l="en">Commands on the server (over SSH)</h3>
+    <div class="codewrap solo" data-l="ru">
       <button class="copy">Копировать</button>
 <pre><code>docker logs -f tslab      # логи (и код входа в TSVerse)
 docker restart tslab      # перезапуск (вход сохранится)
 docker stop tslab         # остановить
 docker rm -f tslab        # удалить контейнер (данные останутся)</code></pre>
     </div>
+    <div class="codewrap solo" data-l="en">
+      <button class="copy">Copy</button>
+<pre><code>docker logs -f tslab      # logs (and the TSVerse sign-in code)
+docker restart tslab      # restart (the sign-in is kept)
+docker stop tslab         # stop
+docker rm -f tslab        # remove the container (data is kept)</code></pre>
+    </div>
 
-    <h3>Обновление до новой версии</h3>
-    <p class="muted">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSVerse сохранятся:</p>
-    <div class="codewrap solo">
+    <h3 data-l="ru">Обновление до новой версии</h3>
+    <h3 data-l="en">Update to a newer version</h3>
+    <p class="muted" data-l="ru">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSVerse сохранятся:</p>
+    <p class="muted" data-l="en">Just run the installation again — it pulls the fresh image and keeps your data and the TSVerse sign-in:</p>
+    <div class="codewrap solo" data-l="ru">
       <button class="copy">Копировать</button>
+      <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_LANG=ru bash</code></pre>
+    </div>
+    <div class="codewrap solo" data-l="en">
+      <button class="copy">Copy</button>
       <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | bash</code></pre>
     </div>
   </section>
 
-  <!-- ДАННЫЕ И БЕЗОПАСНОСТЬ -->
+  <!-- DATA AND SECURITY -->
   <section id="data">
-    <h2>Данные и безопасность</h2>
-    <ul>
+    <h2 data-l="ru">Данные и безопасность</h2>
+    <h2 data-l="en">Data and security</h2>
+    <ul data-l="ru">
       <li><b>Где данные.</b> Всё (база, скрипты, настройки, сессия TSVerse) хранится на сервере в папке
         <code>~/.local/share/tslab</code>, а не внутри контейнера — поэтому переживает перезапуск и обновление.</li>
       <li><b>Бэкап.</b> <code>tar czf tslab-backup.tgz -C ~/.local/share/tslab .</code></li>
@@ -228,73 +367,171 @@ docker rm -f tslab        # удалить контейнер (данные ос
       <li><b>Вход.</b> Подтверждение входа всегда происходит на вашей стороне (телефон/браузер) — пароль в
         скрипт и на сервер не передаётся.</li>
     </ul>
+    <ul data-l="en">
+      <li><b>Where the data lives.</b> Everything (database, scripts, settings, TSVerse session) is stored on the
+        server in <code>~/.local/share/tslab</code>, not inside the container — so it survives restarts and updates.</li>
+      <li><b>Backup.</b> <code>tar czf tslab-backup.tgz -C ~/.local/share/tslab .</code></li>
+      <li><b>Management goes through your local TSLab.</b> In your usual TSLab, pick the remote server — the requests
+        travel to the VPS through TSVerse. The server's own web interface is not needed for that: it listens on
+        <code>127.0.0.1:8088</code> only and is not exposed.</li>
+      <li><b>Direct access to the server WebUI (optional).</b> If you do want it, forward it over SSH:
+        <code>ssh -L 8088:localhost:8088 user@your-vps</code>, then open
+        <a href="http://localhost:8088" target="_blank" rel="noopener">http://localhost:8088</a>.</li>
+      <li><b>Sign-in.</b> The confirmation always happens on your side (phone/browser) — no password is passed to the
+        script or to the server.</li>
+    </ul>
   </section>
 
   <!-- TROUBLESHOOTING -->
   <section id="faq">
-    <h2>Если что-то пошло не так</h2>
+    <h2 data-l="ru">Если что-то пошло не так</h2>
+    <h2 data-l="en">If something goes wrong</h2>
 
-    <details><summary>Docker не ставится / нет прав</summary>
+    <details data-l="ru"><summary>Docker не ставится / нет прав</summary>
       <div class="body">Нужны права <kbd>sudo</kbd> или root. На большинстве VPS вы заходите под root либо под
         пользователем с sudo. Установить Docker вручную: <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">docs.docker.com/engine/install</a>, затем запустите команду установки снова.</div></details>
+    <details data-l="en"><summary>Docker will not install / not enough rights</summary>
+      <div class="body">You need <kbd>sudo</kbd> or root. On most VPS boxes you log in as root or as a user with
+        sudo. To install Docker by hand: <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener">docs.docker.com/engine/install</a>, then run the install command again.</div></details>
 
-    <details><summary>Порт 8088 уже занят</summary>
+    <details data-l="ru"><summary>Порт 8088 уже занят</summary>
       <div class="body">Запустите с другим портом:
         <br><code>TSLAB_PORT=8090 bash -c "$(curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh)"</code></div></details>
+    <details data-l="en"><summary>Port 8088 is already taken</summary>
+      <div class="body">Start it on another port:
+        <br><code>TSLAB_PORT=8090 bash -c "$(curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh)"</code></div></details>
 
-    <details><summary>Windows: ошибка «Не удается найти параметр fsSL» (PowerShell)</summary>
+    <details data-l="ru"><summary>Ошибка «invalid option name pipefail» или «curl: Failed writing body»</summary>
+      <div class="body">Так выглядит скрипт, скачанный с переносами строк Windows (CRLF): bash читает
+        <code>set -o pipefail␍</code> и падает, а вслед за ним обрывается и <code>curl</code>. Файл на сайте
+        отдаётся с LF, поэтому сначала просто повторите команду. Если ошибка осталась — вы, скорее всего,
+        запускаете локальную копию: почистите её переносы строк
+        (<code>sed -i 's/\r$//' install.sh</code>) или скачайте заново.</div></details>
+    <details data-l="en"><summary>Error “invalid option name pipefail” or “curl: Failed writing body”</summary>
+      <div class="body">That is what a script downloaded with Windows line endings (CRLF) looks like: bash reads
+        <code>set -o pipefail␍</code> and dies, and <code>curl</code> then fails to finish writing into the broken
+        pipe. The file on this site is served with LF, so just run the command again. If it persists you are most
+        likely running a local copy: strip its line endings
+        (<code>sed -i 's/\r$//' install.sh</code>) or download it anew.</div></details>
+
+    <details data-l="ru"><summary>Вместо русского текста «кракозябры»</summary>
+      <div class="body">Терминал не в UTF-8. Либо переключите его на UTF-8
+        (<code>export LANG=ru_RU.UTF-8</code>), либо запустите установщик по-английски — уберите
+        <code>TSLAB_LANG=ru</code> или задайте <code>TSLAB_LANG=en</code>. На Windows то же самое:
+        <code>$env:TSLAB_LANG='en'</code> перед командой.</div></details>
+    <details data-l="en"><summary>Russian text shows up as mojibake</summary>
+      <div class="body">The terminal is not UTF-8. Either switch it to UTF-8
+        (<code>export LANG=ru_RU.UTF-8</code>) or run the installer in English — drop
+        <code>TSLAB_LANG=ru</code> or set <code>TSLAB_LANG=en</code>. Same on Windows:
+        <code>$env:TSLAB_LANG='en'</code> before the command.</div></details>
+
+    <details data-l="ru"><summary>Windows: ошибка «Не удается найти параметр fsSL» (PowerShell)</summary>
       <div class="body">Вы вставили Linux-команду в PowerShell. Возьмите команду из вкладки
         <b>Windows (PowerShell)</b>:
         <br><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></div></details>
+    <details data-l="en"><summary>Windows: “A parameter cannot be found that matches parameter name 'fsSL'”</summary>
+      <div class="body">You pasted the Linux command into PowerShell. Take the command from the
+        <b>Windows (PowerShell)</b> tab instead:
+        <br><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></div></details>
 
-    <details><summary>Не увидел код входа в TSVerse</summary>
+    <details data-l="ru"><summary>Не увидел код входа в TSVerse</summary>
       <div class="body">Код появляется через <b>~30–60 секунд</b> после старта (сервер сперва пытается
         восстановить прошлую сессию). Смотрите логи с <code>-f</code> и дождитесь блока с QR:
         <code>docker logs -f tslab</code>. Если вход уже был выполнен ранее, кода не будет — сессия
         восстановлена автоматически.</div></details>
+    <details data-l="en"><summary>I never saw the TSVerse sign-in code</summary>
+      <div class="body">The code shows up <b>~30–60 seconds</b> after the start (the server first tries to restore
+        the previous session). Watch the logs with <code>-f</code> and wait for the QR block:
+        <code>docker logs -f tslab</code>. If you signed in earlier there will be no code at all — the session was
+        restored automatically.</div></details>
 
-    <details><summary>Как полностью переустановить «с нуля»</summary>
+    <details data-l="ru"><summary>Как полностью переустановить «с нуля»</summary>
       <div class="body">Удалите контейнер и данные, затем установите заново:
         <br><code>docker rm -f tslab &amp;&amp; rm -rf ~/.local/share/tslab</code></div></details>
+    <details data-l="en"><summary>How to reinstall from scratch</summary>
+      <div class="body">Remove the container and the data, then install again:
+        <br><code>docker rm -f tslab &amp;&amp; rm -rf ~/.local/share/tslab</code></div></details>
 
-    <details><summary>Файлы в папке данных принадлежат root</summary>
+    <details data-l="ru"><summary>Файлы в папке данных принадлежат root</summary>
       <div class="body">Контейнер работает от root, поэтому файлы в <code>~/.local/share/tslab</code> создаются от
         root. На своём VPS это нормально. Управлять/удалять их можно через <kbd>sudo</kbd>.</div></details>
+    <details data-l="en"><summary>Files in the data directory are owned by root</summary>
+      <div class="body">The container runs as root, so files in <code>~/.local/share/tslab</code> are created by
+        root. On your own VPS that is fine — manage or delete them with <kbd>sudo</kbd>.</div></details>
   </section>
 
   <footer>
-    TSLab Cloud Server · образ <code>tslabdev/tslab-console</code> на Docker Hub<br>
-    Вопросы по торговой платформе — на <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a>
+    <span data-l="ru">TSLab Cloud Server · образ <code>tslabdev/tslab-console</code> на Docker Hub<br>
+      Вопросы по торговой платформе — на <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a></span>
+    <span data-l="en">TSLab Cloud Server · the <code>tslabdev/tslab-console</code> image on Docker Hub<br>
+      Questions about the trading platform — at <a href="https://www.tsverse.pro/" target="_blank" rel="noopener">tsverse.pro</a></span>
   </footer>
 
 </div>
 
 <script>
-  // tabs
-  document.querySelectorAll('.tab').forEach(function(t){
-    t.addEventListener('click', function(){
-      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  // --- language ------------------------------------------------------------
+  var LANG_KEY = 'tslab-cloud-lang';
+  var META = {
+    ru: {
+      title: 'TSLab в облаке — установка на свой VPS',
+      description: 'Поставьте торговый сервер TSLab на свой Linux VPS одной командой и подключите к своему аккаунту TSVerse. Без админских навыков.'
+    },
+    en: {
+      title: 'TSLab in the cloud — install it on your own VPS',
+      description: 'Put the TSLab trading server on your own Linux VPS with a single command and connect it to your TSVerse account. No admin skills needed.'
+    }
+  };
+
+  function applyLang(lang, persist) {
+    if (lang !== 'ru' && lang !== 'en') lang = 'ru';
+    document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('lang', lang);
+    document.title = META[lang].title;
+    var desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', META[lang].description);
+    document.querySelectorAll('[data-setlang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.setlang === lang));
+    });
+    if (persist) {
+      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    }
+  }
+
+  document.querySelectorAll('[data-setlang]').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.dataset.setlang, true); });
+  });
+  applyLang(document.documentElement.getAttribute('data-lang') || 'ru', false);
+
+  // --- OS tabs -------------------------------------------------------------
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.remove('active'); });
       t.classList.add('active');
       var os = t.dataset.os;
-      document.querySelectorAll('[data-pane]').forEach(function(p){
+      document.querySelectorAll('[data-pane]').forEach(function (p) {
         p.classList.toggle('hide', p.dataset.pane !== os);
       });
     });
   });
-  // copy buttons
-  document.querySelectorAll('.copy').forEach(function(btn){
-    btn.addEventListener('click', function(){
+
+  // --- copy buttons --------------------------------------------------------
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
       var code = btn.parentElement.querySelector('code').innerText;
-      navigator.clipboard.writeText(code).then(function(){
+      navigator.clipboard.writeText(code).then(function () {
         var old = btn.textContent;
-        btn.textContent = 'Скопировано ✓'; btn.classList.add('done');
-        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1600);
+        var lang = document.documentElement.getAttribute('data-lang');
+        btn.textContent = (lang === 'en' ? 'Copied ✓' : 'Скопировано ✓');
+        btn.classList.add('done');
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
       });
     });
   });
+
   // Auto-select the Windows tab for Windows visitors — the most common install mistake is pasting
   // the Linux `curl … | bash` command into PowerShell.
-  (function(){
+  (function () {
     var isWin = /Win/i.test(navigator.platform || '') || /Windows/i.test(navigator.userAgent || '');
     if (isWin) {
       var winTab = document.querySelector('.tab[data-os="win"]');

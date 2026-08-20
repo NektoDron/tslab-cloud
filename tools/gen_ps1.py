@@ -1,4 +1,66 @@
-# TSLab Console (headless) - installer for Windows (Docker Desktop).
+# -*- coding: utf-8 -*-
+"""Generate docs/install.ps1 for tslab-cloud.
+
+Run from anywhere:  python tools/gen_ps1.py
+
+The Russian message table is emitted as base64(UTF-8) so the .ps1 file stays pure ASCII:
+GitHub Pages serves it as application/octet-stream with no charset, Windows PowerShell 5.1
+then decodes the download as cp1252/ANSI, and the UTF-8 bytes of Б В Г Д ё land on the
+smart-quote characters — which makes the whole script unparseable.
+"""
+import base64
+import io
+import os
+
+RU = [
+    ("DockerMissing",    "Docker Desktop не найден."),
+    ("WingetInstalling", "Ставлю Docker Desktop через winget (может запросить права администратора)…"),
+    ("WingetDone",       "Docker Desktop установлен (или установка запущена). Дальше нужно сделать вручную — это особенность Windows:"),
+    ("WingetStep1",      "   1) Перезагрузите компьютер."),
+    ("WingetStep2",      "   2) Запустите Docker Desktop и дождитесь статуса 'Engine running' (значок-кит в трее)."),
+    ("WingetStep3",      "   3) Снова выполните:  irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex"),
+    ("WingetFallback",   "   Если winget не смог установить — скачайте вручную: https://www.docker.com/products/docker-desktop/"),
+    ("NoWinget",         "Docker Desktop не найден, и winget в системе недоступен. Установите Docker Desktop вручную: https://www.docker.com/products/docker-desktop/ — затем запустите его (статус «Engine running») и повторите команду."),
+    ("DockerNotRunning", "Docker Desktop установлен, но не запущен. Запустите Docker Desktop (значок-кит в трее), дождитесь статуса «Engine running» и повторите."),
+    ("DockerReady",      "Docker готов."),
+    ("DataDir",          "Папка данных (переживает обновления): {0}"),
+    ("Pull",             "Тяну образ: {0}  (может занять пару минут)…"),
+    ("PullFailed",       "Не удалось скачать образ. Проверьте интернет и что Docker запущен, затем повторите."),
+    ("Run",              "(Пере)запускаю контейнер: {0}"),
+    ("RunFailed",        "Не удалось запустить контейнер. Подробности: docker logs {0}"),
+    ("Started",          "Контейнер запущен (WebUI только на loopback: http://localhost:{0}/)."),
+    ("WaitWebUi",        "Жду запуск WebUI…"),
+    ("CheckLogin",       "Проверяю вход в TSVerse (код появляется через ~30–60 сек)…"),
+    ("SessionRestored",  "Сессия TSVerse восстановлена — повторный вход не нужен."),
+    ("LoginTitle",       "  Вход в TSVerse"),
+    ("LoginStep1",       "  1) Откройте: {0}"),
+    ("LoginStep2",       "  2) Код:      {0}"),
+    ("LoginQr",          "  (или отсканируйте QR ниже)"),
+    ("WaitConfirm",      "Жду подтверждения на вашем устройстве (до 5 минут)…"),
+    ("Connected",        "Подключено к TSVerse."),
+    ("ConfirmTimeout",   "Подтверждение не получено за отведённое время. Откройте логи и завершите вход: docker logs -f {0}"),
+    ("NoCodeYet",        "Код входа пока не появился. Посмотрите логи (дождитесь блока с QR): docker logs -f {0}"),
+    ("DoneOk",           "Готово. TSLab установлен и подключён к TSVerse."),
+    ("DonePartial",      "TSLab установлен и запущен. Завершите вход по инструкции выше."),
+    ("Unexpected",       "Непредвиденная ошибка: {0}"),
+    ("WindowStaysOpen",  "(Окно PowerShell остаётся открытым — вывод выше можно прочитать.)"),
+    ("FooterManage",     "Управление:"),
+    ("FooterLogs",       "логи (и код входа)"),
+    ("FooterRestart",    "перезапуск (сессия восстановится)"),
+    ("FooterRemove",     "удалить контейнер (данные в {0} останутся)"),
+    ("FooterUpdate",     "Обновление:"),
+    ("FooterPanel",      "Веб-панель управления:"),
+    ("FooterData",       "Данные:"),
+]
+
+width = max(len(k) for k, _ in RU)
+rows = []
+for key, text in RU:
+    b64 = base64.b64encode(text.encode('utf-8')).decode('ascii')
+    rows.append("    %-*s = '%s'  # %s" % (width, key, b64, text))
+RU_TABLE = "\n".join(rows)
+
+TEMPLATE = r'''# TSLab Console (headless) - installer for Windows (Docker Desktop).
 #
 # What it does:
 #   1. Checks Docker Desktop.
@@ -72,44 +134,7 @@ function Get-TSLabStringsEn {
 function Get-TSLabStringsRu {
   # base64(UTF-8) - see the MAINTAINERS note at the top. The readable text follows each line.
   $b64 = @{
-    DockerMissing    = 'RG9ja2VyIERlc2t0b3Ag0L3QtSDQvdCw0LnQtNC10L0u'  # Docker Desktop не найден.
-    WingetInstalling = '0KHRgtCw0LLQu9GOIERvY2tlciBEZXNrdG9wINGH0LXRgNC10Lcgd2luZ2V0ICjQvNC+0LbQtdGCINC30LDQv9GA0L7RgdC40YLRjCDQv9GA0LDQstCwINCw0LTQvNC40L3QuNGB0YLRgNCw0YLQvtGA0LAp4oCm'  # Ставлю Docker Desktop через winget (может запросить права администратора)…
-    WingetDone       = 'RG9ja2VyIERlc2t0b3Ag0YPRgdGC0LDQvdC+0LLQu9C10L0gKNC40LvQuCDRg9GB0YLQsNC90L7QstC60LAg0LfQsNC/0YPRidC10L3QsCkuINCU0LDQu9GM0YjQtSDQvdGD0LbQvdC+INGB0LTQtdC70LDRgtGMINCy0YDRg9GH0L3Rg9GOIOKAlCDRjdGC0L4g0L7RgdC+0LHQtdC90L3QvtGB0YLRjCBXaW5kb3dzOg=='  # Docker Desktop установлен (или установка запущена). Дальше нужно сделать вручную — это особенность Windows:
-    WingetStep1      = 'ICAgMSkg0J/QtdGA0LXQt9Cw0LPRgNGD0LfQuNGC0LUg0LrQvtC80L/RjNGO0YLQtdGALg=='  #    1) Перезагрузите компьютер.
-    WingetStep2      = 'ICAgMikg0JfQsNC/0YPRgdGC0LjRgtC1IERvY2tlciBEZXNrdG9wINC4INC00L7QttC00LjRgtC10YHRjCDRgdGC0LDRgtGD0YHQsCAnRW5naW5lIHJ1bm5pbmcnICjQt9C90LDRh9C+0Lot0LrQuNGCINCyINGC0YDQtdC1KS4='  #    2) Запустите Docker Desktop и дождитесь статуса 'Engine running' (значок-кит в трее).
-    WingetStep3      = 'ICAgMykg0KHQvdC+0LLQsCDQstGL0L/QvtC70L3QuNGC0LU6ICBpcm0gaHR0cHM6Ly9uZWt0b2Ryb24uZ2l0aHViLmlvL3RzbGFiLWNsb3VkL2luc3RhbGwucHMxIHwgaWV4'  #    3) Снова выполните:  irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex
-    WingetFallback   = 'ICAg0JXRgdC70Lggd2luZ2V0INC90LUg0YHQvNC+0LMg0YPRgdGC0LDQvdC+0LLQuNGC0Ywg4oCUINGB0LrQsNGH0LDQudGC0LUg0LLRgNGD0YfQvdGD0Y46IGh0dHBzOi8vd3d3LmRvY2tlci5jb20vcHJvZHVjdHMvZG9ja2VyLWRlc2t0b3Av'  #    Если winget не смог установить — скачайте вручную: https://www.docker.com/products/docker-desktop/
-    NoWinget         = 'RG9ja2VyIERlc2t0b3Ag0L3QtSDQvdCw0LnQtNC10L0sINC4IHdpbmdldCDQsiDRgdC40YHRgtC10LzQtSDQvdC10LTQvtGB0YLRg9C/0LXQvS4g0KPRgdGC0LDQvdC+0LLQuNGC0LUgRG9ja2VyIERlc2t0b3Ag0LLRgNGD0YfQvdGD0Y46IGh0dHBzOi8vd3d3LmRvY2tlci5jb20vcHJvZHVjdHMvZG9ja2VyLWRlc2t0b3AvIOKAlCDQt9Cw0YLQtdC8INC30LDQv9GD0YHRgtC40YLQtSDQtdCz0L4gKNGB0YLQsNGC0YPRgSDCq0VuZ2luZSBydW5uaW5nwrspINC4INC/0L7QstGC0L7RgNC40YLQtSDQutC+0LzQsNC90LTRgy4='  # Docker Desktop не найден, и winget в системе недоступен. Установите Docker Desktop вручную: https://www.docker.com/products/docker-desktop/ — затем запустите его (статус «Engine running») и повторите команду.
-    DockerNotRunning = 'RG9ja2VyIERlc2t0b3Ag0YPRgdGC0LDQvdC+0LLQu9C10L0sINC90L4g0L3QtSDQt9Cw0L/Rg9GJ0LXQvS4g0JfQsNC/0YPRgdGC0LjRgtC1IERvY2tlciBEZXNrdG9wICjQt9C90LDRh9C+0Lot0LrQuNGCINCyINGC0YDQtdC1KSwg0LTQvtC20LTQuNGC0LXRgdGMINGB0YLQsNGC0YPRgdCwIMKrRW5naW5lIHJ1bm5pbmfCuyDQuCDQv9C+0LLRgtC+0YDQuNGC0LUu'  # Docker Desktop установлен, но не запущен. Запустите Docker Desktop (значок-кит в трее), дождитесь статуса «Engine running» и повторите.
-    DockerReady      = 'RG9ja2VyINCz0L7RgtC+0LIu'  # Docker готов.
-    DataDir          = '0J/QsNC/0LrQsCDQtNCw0L3QvdGL0YUgKNC/0LXRgNC10LbQuNCy0LDQtdGCINC+0LHQvdC+0LLQu9C10L3QuNGPKTogezB9'  # Папка данных (переживает обновления): {0}
-    Pull             = '0KLRj9C90YMg0L7QsdGA0LDQtzogezB9ICAo0LzQvtC20LXRgiDQt9Cw0L3Rj9GC0Ywg0L/QsNGA0YMg0LzQuNC90YPRginigKY='  # Тяну образ: {0}  (может занять пару минут)…
-    PullFailed       = '0J3QtSDRg9C00LDQu9C+0YHRjCDRgdC60LDRh9Cw0YLRjCDQvtCx0YDQsNC3LiDQn9GA0L7QstC10YDRjNGC0LUg0LjQvdGC0LXRgNC90LXRgiDQuCDRh9GC0L4gRG9ja2VyINC30LDQv9GD0YnQtdC9LCDQt9Cw0YLQtdC8INC/0L7QstGC0L7RgNC40YLQtS4='  # Не удалось скачать образ. Проверьте интернет и что Docker запущен, затем повторите.
-    Run              = 'KNCf0LXRgNC1KdC30LDQv9GD0YHQutCw0Y4g0LrQvtC90YLQtdC50L3QtdGAOiB7MH0='  # (Пере)запускаю контейнер: {0}
-    RunFailed        = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/Rg9GB0YLQuNGC0Ywg0LrQvtC90YLQtdC50L3QtdGALiDQn9C+0LTRgNC+0LHQvdC+0YHRgtC4OiBkb2NrZXIgbG9ncyB7MH0='  # Не удалось запустить контейнер. Подробности: docker logs {0}
-    Started          = '0JrQvtC90YLQtdC50L3QtdGAINC30LDQv9GD0YnQtdC9IChXZWJVSSDRgtC+0LvRjNC60L4g0L3QsCBsb29wYmFjazogaHR0cDovL2xvY2FsaG9zdDp7MH0vKS4='  # Контейнер запущен (WebUI только на loopback: http://localhost:{0}/).
-    WaitWebUi        = '0JbQtNGDINC30LDQv9GD0YHQuiBXZWJVSeKApg=='  # Жду запуск WebUI…
-    CheckLogin       = '0J/RgNC+0LLQtdGA0Y/RjiDQstGF0L7QtCDQsiBUU1ZlcnNlICjQutC+0LQg0L/QvtGP0LLQu9GP0LXRgtGB0Y8g0YfQtdGA0LXQtyB+MzDigJM2MCDRgdC10Lop4oCm'  # Проверяю вход в TSVerse (код появляется через ~30–60 сек)…
-    SessionRestored  = '0KHQtdGB0YHQuNGPIFRTVmVyc2Ug0LLQvtGB0YHRgtCw0L3QvtCy0LvQtdC90LAg4oCUINC/0L7QstGC0L7RgNC90YvQuSDQstGF0L7QtCDQvdC1INC90YPQttC10L0u'  # Сессия TSVerse восстановлена — повторный вход не нужен.
-    LoginTitle       = 'ICDQktGF0L7QtCDQsiBUU1ZlcnNl'  #   Вход в TSVerse
-    LoginStep1       = 'ICAxKSDQntGC0LrRgNC+0LnRgtC1OiB7MH0='  #   1) Откройте: {0}
-    LoginStep2       = 'ICAyKSDQmtC+0LQ6ICAgICAgezB9'  #   2) Код:      {0}
-    LoginQr          = 'ICAo0LjQu9C4INC+0YLRgdC60LDQvdC40YDRg9C50YLQtSBRUiDQvdC40LbQtSk='  #   (или отсканируйте QR ниже)
-    WaitConfirm      = '0JbQtNGDINC/0L7QtNGC0LLQtdGA0LbQtNC10L3QuNGPINC90LAg0LLQsNGI0LXQvCDRg9GB0YLRgNC+0LnRgdGC0LLQtSAo0LTQviA1INC80LjQvdGD0YIp4oCm'  # Жду подтверждения на вашем устройстве (до 5 минут)…
-    Connected        = '0J/QvtC00LrQu9GO0YfQtdC90L4g0LogVFNWZXJzZS4='  # Подключено к TSVerse.
-    ConfirmTimeout   = '0J/QvtC00YLQstC10YDQttC00LXQvdC40LUg0L3QtSDQv9C+0LvRg9GH0LXQvdC+INC30LAg0L7RgtCy0LXQtNGR0L3QvdC+0LUg0LLRgNC10LzRjy4g0J7RgtC60YDQvtC50YLQtSDQu9C+0LPQuCDQuCDQt9Cw0LLQtdGA0YjQuNGC0LUg0LLRhdC+0LQ6IGRvY2tlciBsb2dzIC1mIHswfQ=='  # Подтверждение не получено за отведённое время. Откройте логи и завершите вход: docker logs -f {0}
-    NoCodeYet        = '0JrQvtC0INCy0YXQvtC00LAg0L/QvtC60LAg0L3QtSDQv9C+0Y/QstC40LvRgdGPLiDQn9C+0YHQvNC+0YLRgNC40YLQtSDQu9C+0LPQuCAo0LTQvtC20LTQuNGC0LXRgdGMINCx0LvQvtC60LAg0YEgUVIpOiBkb2NrZXIgbG9ncyAtZiB7MH0='  # Код входа пока не появился. Посмотрите логи (дождитесь блока с QR): docker logs -f {0}
-    DoneOk           = '0JPQvtGC0L7QstC+LiBUU0xhYiDRg9GB0YLQsNC90L7QstC70LXQvSDQuCDQv9C+0LTQutC70Y7Rh9GR0L0g0LogVFNWZXJzZS4='  # Готово. TSLab установлен и подключён к TSVerse.
-    DonePartial      = 'VFNMYWIg0YPRgdGC0LDQvdC+0LLQu9C10L0g0Lgg0LfQsNC/0YPRidC10L0uINCX0LDQstC10YDRiNC40YLQtSDQstGF0L7QtCDQv9C+INC40L3RgdGC0YDRg9C60YbQuNC4INCy0YvRiNC1Lg=='  # TSLab установлен и запущен. Завершите вход по инструкции выше.
-    Unexpected       = '0J3QtdC/0YDQtdC00LLQuNC00LXQvdC90LDRjyDQvtGI0LjQsdC60LA6IHswfQ=='  # Непредвиденная ошибка: {0}
-    WindowStaysOpen  = 'KNCe0LrQvdC+IFBvd2VyU2hlbGwg0L7RgdGC0LDRkdGC0YHRjyDQvtGC0LrRgNGL0YLRi9C8IOKAlCDQstGL0LLQvtC0INCy0YvRiNC1INC80L7QttC90L4g0L/RgNC+0YfQuNGC0LDRgtGMLik='  # (Окно PowerShell остаётся открытым — вывод выше можно прочитать.)
-    FooterManage     = '0KPQv9GA0LDQstC70LXQvdC40LU6'  # Управление:
-    FooterLogs       = '0LvQvtCz0LggKNC4INC60L7QtCDQstGF0L7QtNCwKQ=='  # логи (и код входа)
-    FooterRestart    = '0L/QtdGA0LXQt9Cw0L/Rg9GB0LogKNGB0LXRgdGB0LjRjyDQstC+0YHRgdGC0LDQvdC+0LLQuNGC0YHRjyk='  # перезапуск (сессия восстановится)
-    FooterRemove     = '0YPQtNCw0LvQuNGC0Ywg0LrQvtC90YLQtdC50L3QtdGAICjQtNCw0L3QvdGL0LUg0LIgezB9INC+0YHRgtCw0L3Rg9GC0YHRjyk='  # удалить контейнер (данные в {0} останутся)
-    FooterUpdate     = '0J7QsdC90L7QstC70LXQvdC40LU6'  # Обновление:
-    FooterPanel      = '0JLQtdCxLdC/0LDQvdC10LvRjCDRg9C/0YDQsNCy0LvQtdC90LjRjzo='  # Веб-панель управления:
-    FooterData       = '0JTQsNC90L3Ri9C1Og=='  # Данные:
+__RU_TABLE__
   }
   $out = @{}
   foreach ($k in $b64.Keys) {
@@ -269,3 +294,16 @@ catch {
 }
 Write-Host ""
 Write-Host $TSLabL.WindowStaysOpen -ForegroundColor DarkGray
+'''
+
+out = TEMPLATE.replace('__RU_TABLE__', RU_TABLE)
+# CRLF, UTF-8 without BOM (the file is ASCII apart from the trailing comments).
+io.open(r'C:\Projects\tslab-cloud\docs\install.ps1', 'w', encoding='utf-8', newline='\r\n').write(out)
+
+# Report any non-ASCII outside comments.
+bad = []
+for n, line in enumerate(out.splitlines(), 1):
+    code = line.split('#', 1)[0]
+    if any(ord(c) > 127 for c in code):
+        bad.append((n, line))
+print('generated; non-ascii code lines:', bad)

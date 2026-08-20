@@ -1,0 +1,13 @@
+# Line endings for the files GitHub Pages serves verbatim.
+#
+# install.sh is piped straight into bash (`curl ... | bash`). With CRLF, bash reads
+# `set -o pipefail<CR>` and aborts with ": invalid option nameipefail", which in turn
+# breaks the pipe and makes curl report "Failed writing body". Pin LF.
+*.sh text eol=lf
+
+# The PowerShell installer keeps the native Windows convention.
+*.ps1 text eol=crlf
+
+*.py   text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
