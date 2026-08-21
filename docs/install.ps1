@@ -14,7 +14,13 @@
 #   Without TSLAB_LANG the installer follows the Windows UI culture, and it falls back to English
 #   whenever the console cannot be switched to UTF-8.
 #
-# Other variables (optional): $env:TSLAB_IMAGE, $env:TSLAB_NAME, $env:TSLAB_PORT, $env:TSLAB_DATA_DIR
+# On an interactive console the installer asks where to keep the data and which TSVerse region to
+# use (global / ru / us); it reuses the data folder of an existing container by default. Setting
+# $env:TSLAB_DATA_DIR or $env:TSLAB_REGION skips the matching question, and $env:TSLAB_NONINTERACTIVE
+# suppresses both - handy for unattended runs.
+#
+# Other variables (optional): $env:TSLAB_IMAGE, $env:TSLAB_NAME, $env:TSLAB_PORT,
+#   $env:TSLAB_DATA_DIR, $env:TSLAB_REGION (global|ru|us), $env:TSLAB_NONINTERACTIVE
 #
 # IMPORTANT: the script is run through `iex` in the current session, so it NEVER calls `exit`
 # (that would close the PowerShell window) - everything lives in a function, errors are printed
@@ -39,6 +45,25 @@ function Get-TSLabStringsEn {
     DockerNotRunning = 'Docker Desktop is installed but not running. Start Docker Desktop (the whale icon in the tray), wait for the "Engine running" status and try again.'
     DockerReady      = 'Docker is ready.'
     DataDir          = 'Data directory (survives updates): {0}'
+    DataFound        = 'Found an existing installation. Its data is in: {0}'
+    DataKeep         = 'Keep using this folder? [Y/n]'
+    DataAsk          = 'Data folder [{0}]'
+    DataAbsRequired  = 'Please enter an absolute path, for example C:\Users\User\tslab'
+    DataMkdirFail    = 'Cannot create the folder: {0}'
+    DataNewWarn      = 'A different folder means a fresh start: the old data stays on disk, but the new instance will ask for the TSVerse sign-in again.'
+    DataReusedAuto   = 'Non-interactive run - reusing the data folder of the existing container: {0}'
+    RegionTitle      = 'TSVerse region:'
+    RegionOptGlobal  = '  1) global - tsverse.pro (default)'
+    RegionOptRu      = '  2) ru     - tsverse.ru'
+    RegionOptUs      = '  3) us     - tsverse.us'
+    RegionAsk        = 'Choose 1-3 [1]'
+    RegionAskAgain   = 'Please enter 1, 2 or 3.'
+    RegionCurrent    = 'This installation is set to the TSVerse region: {0}'
+    RegionKeep       = 'Keep this region? [Y/n]'
+    RegionChangeWarn = 'Another region is a separate TSVerse account space - the instance will ask for a new sign-in.'
+    RegionSet        = 'TSVerse region: {0}'
+    RegionBad        = 'Unknown TSLAB_REGION value: {0} (expected global, ru or us).'
+    RegionWriteFail  = 'Could not write {0} - the region stays as it was.'
     Pull             = 'Pulling the image: {0}  (may take a couple of minutes)...'
     PullFailed       = 'Could not download the image. Check the internet connection and that Docker is running, then try again.'
     Run              = '(Re)starting the container: {0}'
@@ -84,6 +109,25 @@ function Get-TSLabStringsRu {
     DockerReady      = 'RG9ja2VyINCz0L7RgtC+0LIu'  # Docker готов.
     DataDir          = '0J/QsNC/0LrQsCDQtNCw0L3QvdGL0YUgKNC/0LXRgNC10LbQuNCy0LDQtdGCINC+0LHQvdC+0LLQu9C10L3QuNGPKTogezB9'  # Папка данных (переживает обновления): {0}
     Pull             = '0KLRj9C90YMg0L7QsdGA0LDQtzogezB9ICAo0LzQvtC20LXRgiDQt9Cw0L3Rj9GC0Ywg0L/QsNGA0YMg0LzQuNC90YPRginigKY='  # Тяну образ: {0}  (может занять пару минут)…
+    DataFound        = '0J3QsNGI0ZHQuyDRgdGD0YnQtdGB0YLQstGD0Y7RidGD0Y4g0YPRgdGC0LDQvdC+0LLQutGDLiDQldGRINC00LDQvdC90YvQtSDQu9C10LbQsNGCINCyOiB7MH0='  # Нашёл существующую установку. Её данные лежат в: {0}
+    DataKeep         = '0J7RgdGC0LDQstC40YLRjCDRjdGC0YMg0L/QsNC/0LrRgz8gW1kvbl0='  # Оставить эту папку? [Y/n]
+    DataAsk          = '0J/QsNC/0LrQsCDQtNCw0L3QvdGL0YUgW3swfV0='  # Папка данных [{0}]
+    DataAbsRequired  = '0JLQstC10LTQuNGC0LUg0LDQsdGB0L7Qu9GO0YLQvdGL0Lkg0L/Rg9GC0YwsINC90LDQv9GA0LjQvNC10YAgQzpcVXNlcnNcVXNlclx0c2xhYg=='  # Введите абсолютный путь, например C:\Users\User\tslab
+    DataMkdirFail    = '0J3QtSDRg9C00LDQu9C+0YHRjCDRgdC+0LfQtNCw0YLRjCDQv9Cw0L/QutGDOiB7MH0='  # Не удалось создать папку: {0}
+    DataNewWarn      = '0JTRgNGD0LPQsNGPINC/0LDQv9C60LAg4oCUINGN0YLQviDRh9C40YHRgtGL0Lkg0YHRgtCw0YDRgjog0YHRgtCw0YDRi9C1INC00LDQvdC90YvQtSDQvtGB0YLQsNC90YPRgtGB0Y8g0L3QsCDQtNC40YHQutC1LCDQvdC+INC90L7QstGL0Lkg0LjQvdGB0YLQsNC90YEg0YHQvdC+0LLQsCDQv9C+0L/RgNC+0YHQuNGCINCy0YXQvtC0INCyIFRTVmVyc2Uu'  # Другая папка — это чистый старт: старые данные останутся на диске, но новый инстанс снова попросит вход в TSVerse.
+    DataReusedAuto   = '0J3QtdC40L3RgtC10YDQsNC60YLQuNCy0L3Ri9C5INC30LDQv9GD0YHQuiDigJQg0LHQtdGA0YMg0L/QsNC/0LrRgyDQtNCw0L3QvdGL0YUg0YHRg9GJ0LXRgdGC0LLRg9GO0YnQtdCz0L4g0LrQvtC90YLQtdC50L3QtdGA0LA6IHswfQ=='  # Неинтерактивный запуск — беру папку данных существующего контейнера: {0}
+    RegionTitle      = '0KDQtdCz0LjQvtC9IFRTVmVyc2U6'  # Регион TSVerse:
+    RegionOptGlobal  = 'ICAxKSBnbG9iYWwg4oCUIHRzdmVyc2UucHJvICjQv9C+INGD0LzQvtC70YfQsNC90LjRjik='  #   1) global — tsverse.pro (по умолчанию)
+    RegionOptRu      = 'ICAyKSBydSAgICAg4oCUIHRzdmVyc2UucnU='  #   2) ru     — tsverse.ru
+    RegionOptUs      = 'ICAzKSB1cyAgICAg4oCUIHRzdmVyc2UudXM='  #   3) us     — tsverse.us
+    RegionAsk        = '0JLRi9Cx0LXRgNC40YLQtSAxLTMgWzFd'  # Выберите 1-3 [1]
+    RegionAskAgain   = '0JLQstC10LTQuNGC0LUgMSwgMiDQuNC70LggMy4='  # Введите 1, 2 или 3.
+    RegionCurrent    = '0K3RgtCwINGD0YHRgtCw0L3QvtCy0LrQsCDQvdCw0YHRgtGA0L7QtdC90LAg0L3QsCDRgNC10LPQuNC+0L0gVFNWZXJzZTogezB9'  # Эта установка настроена на регион TSVerse: {0}
+    RegionKeep       = '0J7RgdGC0LDQstC40YLRjCDRjdGC0L7RgiDRgNC10LPQuNC+0L0/IFtZL25d'  # Оставить этот регион? [Y/n]
+    RegionChangeWarn = '0JTRgNGD0LPQvtC5INGA0LXQs9C40L7QvSDigJQg0Y3RgtC+INC+0YLQtNC10LvRjNC90L7QtSDQv9GA0L7RgdGC0YDQsNC90YHRgtCy0L4g0LDQutC60LDRg9C90YLQvtCyIFRTVmVyc2U6INC40L3RgdGC0LDQvdGBINC/0L7Qv9GA0L7RgdC40YIg0L3QvtCy0YvQuSDQstGF0L7QtC4='  # Другой регион — это отдельное пространство аккаунтов TSVerse: инстанс попросит новый вход.
+    RegionSet        = '0KDQtdCz0LjQvtC9IFRTVmVyc2U6IHswfQ=='  # Регион TSVerse: {0}
+    RegionBad        = '0J3QtdC40LfQstC10YHRgtC90L7QtSDQt9C90LDRh9C10L3QuNC1IFRTTEFCX1JFR0lPTjogezB9ICjQvtC20LjQtNCw0LXRgtGB0Y8gZ2xvYmFsLCBydSDQuNC70LggdXMpLg=='  # Неизвестное значение TSLAB_REGION: {0} (ожидается global, ru или us).
+    RegionWriteFail  = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/QuNGB0LDRgtGMIHswfSDigJQg0YDQtdCz0LjQvtC9INC+0YHRgtCw0LvRgdGPINC/0YDQtdC20L3QuNC8Lg=='  # Не удалось записать {0} — регион остался прежним.
     PullFailed       = '0J3QtSDRg9C00LDQu9C+0YHRjCDRgdC60LDRh9Cw0YLRjCDQvtCx0YDQsNC3LiDQn9GA0L7QstC10YDRjNGC0LUg0LjQvdGC0LXRgNC90LXRgiDQuCDRh9GC0L4gRG9ja2VyINC30LDQv9GD0YnQtdC9LCDQt9Cw0YLQtdC8INC/0L7QstGC0L7RgNC40YLQtS4='  # Не удалось скачать образ. Проверьте интернет и что Docker запущен, затем повторите.
     Run              = 'KNCf0LXRgNC1KdC30LDQv9GD0YHQutCw0Y4g0LrQvtC90YLQtdC50L3QtdGAOiB7MH0='  # (Пере)запускаю контейнер: {0}
     RunFailed        = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/Rg9GB0YLQuNGC0Ywg0LrQvtC90YLQtdC50L3QtdGALiDQn9C+0LTRgNC+0LHQvdC+0YHRgtC4OiBkb2NrZXIgbG9ncyB7MH0='  # Не удалось запустить контейнер. Подробности: docker logs {0}
@@ -139,6 +183,85 @@ function Get-TSLabStrings {
   return Get-TSLabStringsEn
 }
 
+# --- wizard helpers ---------------------------------------------------------
+function Test-TSLabInteractive {
+  if ($env:TSLAB_NONINTERACTIVE) { return $false }
+  try { return [Environment]::UserInteractive } catch { return $false }
+}
+
+function Read-TSLabYesNo([string]$Prompt) {
+  $a = Read-Host -Prompt $Prompt
+  return -not ($a -match '^\s*[nN]')
+}
+
+function Read-TSLabPath([string]$Default, $L) {
+  while ($true) {
+    $a = Read-Host -Prompt ($L.DataAsk -f $Default)
+    if ([string]::IsNullOrWhiteSpace($a)) { $a = $Default }
+    $a = $a.Trim().Trim('"')
+    if (-not [System.IO.Path]::IsPathRooted($a)) {
+      Write-Host $L.DataAbsRequired -ForegroundColor Yellow
+      continue
+    }
+    try { New-Item -ItemType Directory -Force -Path $a | Out-Null; return $a }
+    catch { Write-Host ($L.DataMkdirFail -f $a) -ForegroundColor Yellow }
+  }
+}
+
+function Read-TSLabRegion($L) {
+  Write-Host $L.RegionTitle
+  Write-Host $L.RegionOptGlobal
+  Write-Host $L.RegionOptRu
+  Write-Host $L.RegionOptUs
+  while ($true) {
+    $a = (Read-Host -Prompt $L.RegionAsk)
+    if ($null -eq $a) { $a = '' }
+    switch -Regex ($a.Trim()) {
+      '^(1|global|pro)?$' { return 'global' }
+      '^(2|ru)$'          { return 'ru' }
+      '^(3|us)$'          { return 'us' }
+      default { Write-Host $L.RegionAskAgain -ForegroundColor Yellow }
+    }
+  }
+}
+
+function ConvertTo-TSLabRegion([string]$Value) {
+  if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+  switch ($Value.Trim().ToLowerInvariant()) {
+    'ru'      { return 'ru' }
+    'russia'  { return 'ru' }
+    'russian' { return 'ru' }
+    'us'      { return 'us' }
+    'usa'     { return 'us' }
+    'global'  { return 'global' }
+    'pro'     { return 'global' }
+    'world'   { return 'global' }
+    default   { return '' }
+  }
+}
+
+# The console reads its TSVerse region from launchSettings.json in the CommonData folder, and inside
+# the container CommonData is the profile path - the volume we mount. So the file simply lives at
+# <data dir>\launchSettings.json on the host.
+function Get-TSLabRegionFile([string]$DataDir) {
+  $f = Join-Path $DataDir 'launchSettings.json'
+  if (-not (Test-Path $f)) { return '' }
+  try {
+    $j = Get-Content -Raw -Path $f | ConvertFrom-Json
+    if ($j.legalRegion) { return [string]$j.legalRegion }
+  } catch { }
+  return ''
+}
+
+function Set-TSLabRegionFile([string]$DataDir, [string]$Region) {
+  $f = Join-Path $DataDir 'launchSettings.json'
+  $json = "{`r`n  ""legalRegion"": ""$Region""`r`n}`r`n"
+  try {
+    [System.IO.File]::WriteAllText($f, $json, (New-Object System.Text.UTF8Encoding($false)))
+    return $true
+  } catch { return $false }
+}
+
 function Invoke-TSLabInstall {
   $L = Get-TSLabStrings
   $sep = '-' * 64
@@ -146,7 +269,8 @@ function Invoke-TSLabInstall {
   $Image   = if ($env:TSLAB_IMAGE)    { $env:TSLAB_IMAGE }    else { 'tslabdev/tslab-console:latest' }
   $Name    = if ($env:TSLAB_NAME)     { $env:TSLAB_NAME }     else { 'tslab' }
   $Port    = if ($env:TSLAB_PORT)     { $env:TSLAB_PORT }     else { '8088' }
-  $DataDir = if ($env:TSLAB_DATA_DIR) { $env:TSLAB_DATA_DIR } else { Join-Path $env:USERPROFILE '.tslab' }
+  $DefaultDataDir = Join-Path $env:USERPROFILE '.tslab'
+  $DataDir = ''
 
   function Say($m)  { Write-Host "==> $m" -ForegroundColor Cyan }
   function Ok($m)   { Write-Host "OK  $m" -ForegroundColor Green }
@@ -178,8 +302,68 @@ function Invoke-TSLabInstall {
   }
   Ok $L.DockerReady
 
+  # --- wizard: data folder ---------------------------------------------------
+  # An explicit TSLAB_DATA_DIR wins; otherwise reuse what the existing container has mounted, and
+  # only fall back to the default when there is nothing to reuse.
+  $existingDataDir = ''
+  try {
+    $inspected = docker inspect -f '{{range .Mounts}}{{if eq .Destination "/var/lib/tslab"}}{{.Source}}{{end}}{{end}}' $Name 2>$null
+    if ($inspected) { $existingDataDir = ([string]($inspected | Select-Object -First 1)).Trim() }
+  } catch { }
+
+  if ($env:TSLAB_DATA_DIR) {
+    $DataDir = $env:TSLAB_DATA_DIR
+  }
+  elseif ($existingDataDir) {
+    if (Test-TSLabInteractive) {
+      Say ($L.DataFound -f $existingDataDir)
+      if (Read-TSLabYesNo $L.DataKeep) { $DataDir = $existingDataDir }
+      else {
+        Warn $L.DataNewWarn
+        $DataDir = Read-TSLabPath $DefaultDataDir $L
+      }
+    }
+    else {
+      $DataDir = $existingDataDir
+      Say ($L.DataReusedAuto -f $DataDir)
+    }
+  }
+  elseif (Test-TSLabInteractive) {
+    $DataDir = Read-TSLabPath $DefaultDataDir $L
+  }
+  else {
+    $DataDir = $DefaultDataDir
+  }
+
+  try { New-Item -ItemType Directory -Force -Path $DataDir | Out-Null }
+  catch { Fail ($L.DataMkdirFail -f $DataDir); return }
   Say ($L.DataDir -f $DataDir)
-  New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
+
+  # --- wizard: TSVerse region ------------------------------------------------
+  $currentRegion = ConvertTo-TSLabRegion (Get-TSLabRegionFile $DataDir)
+  $Region = ConvertTo-TSLabRegion $env:TSLAB_REGION
+  if ($env:TSLAB_REGION -and -not $Region) { Fail ($L.RegionBad -f $env:TSLAB_REGION); return }
+  if (-not $Region) {
+    if ($currentRegion) {
+      if (Test-TSLabInteractive) {
+        Say ($L.RegionCurrent -f $currentRegion)
+        if (Read-TSLabYesNo $L.RegionKeep) { $Region = $currentRegion }
+        else {
+          Warn $L.RegionChangeWarn
+          $Region = Read-TSLabRegion $L
+        }
+      }
+      else { $Region = $currentRegion }
+    }
+    elseif (Test-TSLabInteractive) { $Region = Read-TSLabRegion $L }
+    else { $Region = 'global' }
+  }
+  if ($Region -ne $currentRegion) {
+    if (-not (Set-TSLabRegionFile $DataDir $Region)) {
+      Warn ($L.RegionWriteFail -f (Join-Path $DataDir 'launchSettings.json'))
+    }
+  }
+  Ok ($L.RegionSet -f $Region)
 
   Say ($L.Pull -f $Image)
   docker pull $Image

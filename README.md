@@ -31,6 +31,30 @@ The command:
 4. signs the instance into TSVerse via the OAuth device flow (RFC 8628): the code + QR are printed
    into the logs and you confirm from your phone. No port forwarding, no access to the WebUI needed.
 
+### Setup wizard: data folder and TSVerse region
+
+On a terminal the installer asks two questions:
+
+- **Data folder** — where the profile (DB, scripts, settings, TSVerse session) lives on the host.
+  When a `tslab` container already exists, its mounted folder is detected with `docker inspect` and
+  offered as the default, so re-running the one-liner never silently moves your data.
+- **TSVerse region** — `global` (tsverse.pro), `ru` (tsverse.ru) or `us` (tsverse.us). It is stored
+  as `<data folder>/launchSettings.json` (`{"legalRegion": "..."}`), which the console reads from its
+  CommonData folder — inside the container that folder is the mounted profile path.
+
+Preset either answer to skip the matching question:
+
+```bash
+curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash
+```
+
+```powershell
+$env:TSLAB_DATA_DIR='D:\tslab'; $env:TSLAB_REGION='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex
+```
+
+Without a terminal (CI, cron) nothing is asked: the existing container's folder is reused, otherwise
+the default is taken, and the region falls back to the stored one or `global`.
+
 ### Installer language
 
 Both installers speak **English by default** and switch to Russian on request:
@@ -98,6 +122,30 @@ $env:TSLAB_LANG='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | 
 3. хранит данные на хосте (`~/.local/share/tslab`) — переживают рестарт и обновление;
 4. логинит инстанс в TSVerse по OAuth device flow (RFC 8628): код + QR печатаются в логи,
    подтверждение — с вашего телефона. Проброс портов и доступ к WebUI не требуются.
+
+### Мастер: папка данных и регион TSVerse
+
+В терминале установщик задаёт два вопроса:
+
+- **Папка данных** — где на хосте лежит профиль (база, скрипты, настройки, сессия TSVerse). Если
+  контейнер `tslab` уже есть, его примонтированная папка определяется через `docker inspect` и
+  предлагается по умолчанию — повторный запуск однострочника не уводит данные молча в другое место.
+- **Регион TSVerse** — `global` (tsverse.pro), `ru` (tsverse.ru) или `us` (tsverse.us). Хранится в
+  `<папка данных>/launchSettings.json` (`{"legalRegion": "..."}`): консоль читает его из своей папки
+  CommonData, а внутри контейнера это и есть примонтированный профиль.
+
+Чтобы вопрос не задавался, задайте ответ переменной:
+
+```bash
+curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash
+```
+
+```powershell
+$env:TSLAB_DATA_DIR='D:\tslab'; $env:TSLAB_REGION='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex
+```
+
+Без терминала (CI, cron) вопросы не задаются: берётся папка существующего контейнера, иначе
+дефолтная, а регион — сохранённый ранее или `global`.
 
 ### Язык установщика
 

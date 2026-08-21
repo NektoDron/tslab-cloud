@@ -26,7 +26,12 @@
 #   TSLAB_NAME            container name (default tslab)
 #   TSLAB_PORT            local WebUI port bound to loopback (default 8088)
 #   TSLAB_DATA_DIR        data directory on the host (default ~/.local/share/tslab)
+#   TSLAB_REGION          global | ru | us - TSVerse region (default: asked, then global)
 #   TSLAB_INSTALL_DOCKER  0 — never install Docker automatically
+#
+# On a terminal the installer asks where to keep the data and which TSVerse region to use; it
+# reuses the data folder of an existing container by default. Setting TSLAB_DATA_DIR or
+# TSLAB_REGION skips the matching question, so piped/unattended runs stay deterministic.
 #
 # MAINTAINERS: this file must stay LF-only. With CRLF, bash reads `set -o pipefail<CR>` and dies
 # with ": invalid option nameipefail". `.gitattributes` pins `*.sh text eol=lf`.
@@ -36,7 +41,10 @@ set -euo pipefail
 IMAGE="${TSLAB_IMAGE:-tslabdev/tslab-console:latest}"
 NAME="${TSLAB_NAME:-tslab}"
 PORT="${TSLAB_PORT:-8088}"
-DATA_DIR="${TSLAB_DATA_DIR:-$HOME/.local/share/tslab}"
+DEFAULT_DATA_DIR="$HOME/.local/share/tslab"
+# DATA_DIR and REGION are resolved after Docker is up - the wizard needs `docker inspect`.
+DATA_DIR=""
+REGION=""
 
 # --- language -------------------------------------------------------------
 LANG_REQUEST="${TSLAB_LANG:-}"
@@ -75,7 +83,8 @@ esac
 # --- messages -------------------------------------------------------------
 strings_en() {
   M_HELP="Usage: install.sh [--lang en|ru]
-Environment: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_INSTALL_DOCKER
+Environment: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_REGION,
+             TSLAB_INSTALL_DOCKER
 Docs: https://nektodron.github.io/tslab-cloud/"
   M_DOCKER_MISSING="Docker not found."
   M_DOCKER_AUTOINSTALL_OFF="Automatic Docker installation is disabled. Install Docker and run this script again."
@@ -90,6 +99,25 @@ Docs: https://nektodron.github.io/tslab-cloud/"
   M_DOCKER_DAEMON_FAIL="Docker is installed but the daemon is not running. Start it and try again."
   M_DOCKER_READY="Docker is ready (%s)."
   M_DATA_DIR="Data directory (on the host, survives updates): %s"
+  M_DATA_FOUND="Found an existing installation. Its data is in: %s"
+  M_DATA_KEEP="Keep using this folder? [Y/n] "
+  M_DATA_ASK="Data folder [%s]: "
+  M_DATA_ABS_REQUIRED="Please enter an absolute path, for example /home/user/tslab"
+  M_DATA_MKDIR_FAIL="Cannot create the folder: %s"
+  M_DATA_NEW_WARN="A different folder means a fresh start: the old data stays on disk, but the new instance will ask for the TSVerse sign-in again."
+  M_DATA_REUSED_AUTO="Non-interactive run - reusing the data folder of the existing container: %s"
+  M_REGION_TITLE="TSVerse region:"
+  M_REGION_OPT_GLOBAL="  1) global - tsverse.pro (default)"
+  M_REGION_OPT_RU="  2) ru     - tsverse.ru"
+  M_REGION_OPT_US="  3) us     - tsverse.us"
+  M_REGION_ASK="Choose 1-3 [1]: "
+  M_REGION_ASK_AGAIN="Please enter 1, 2 or 3."
+  M_REGION_CURRENT="This installation is set to the TSVerse region: %s"
+  M_REGION_KEEP="Keep this region? [Y/n] "
+  M_REGION_CHANGE_WARN="Another region is a separate TSVerse account space - the instance will ask for a new sign-in."
+  M_REGION_SET="TSVerse region: %s"
+  M_REGION_BAD="Unknown TSLAB_REGION value: %s (expected global, ru or us)."
+  M_REGION_WRITE_FAIL="Could not write %s - the region stays as it was."
   M_PULL="Pulling the image: %s"
   M_RUN="(Re)starting the container: %s"
   M_STARTED="Container started (WebUI on loopback only: http://localhost:%s/)."
@@ -121,7 +149,8 @@ Docs: https://nektodron.github.io/tslab-cloud/"
 
 strings_ru() {
   M_HELP="Использование: install.sh [--lang en|ru]
-Переменные окружения: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_INSTALL_DOCKER
+Переменные окружения: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_REGION,
+                      TSLAB_INSTALL_DOCKER
 Инструкция: https://nektodron.github.io/tslab-cloud/"
   M_DOCKER_MISSING="Docker не найден."
   M_DOCKER_AUTOINSTALL_OFF="Автоустановка Docker отключена. Установите Docker и запустите скрипт снова."
@@ -136,6 +165,25 @@ strings_ru() {
   M_DOCKER_DAEMON_FAIL="Docker установлен, но демон не запущен. Запустите его и повторите."
   M_DOCKER_READY="Docker готов (%s)."
   M_DATA_DIR="Папка данных (на хосте, переживает обновления): %s"
+  M_DATA_FOUND="Нашёл существующую установку. Её данные лежат в: %s"
+  M_DATA_KEEP="Оставить эту папку? [Y/n] "
+  M_DATA_ASK="Папка данных [%s]: "
+  M_DATA_ABS_REQUIRED="Введите абсолютный путь, например /home/user/tslab"
+  M_DATA_MKDIR_FAIL="Не удалось создать папку: %s"
+  M_DATA_NEW_WARN="Другая папка — это чистый старт: старые данные останутся на диске, но новый инстанс снова попросит вход в TSVerse."
+  M_DATA_REUSED_AUTO="Неинтерактивный запуск — беру папку данных существующего контейнера: %s"
+  M_REGION_TITLE="Регион TSVerse:"
+  M_REGION_OPT_GLOBAL="  1) global — tsverse.pro (по умолчанию)"
+  M_REGION_OPT_RU="  2) ru     — tsverse.ru"
+  M_REGION_OPT_US="  3) us     — tsverse.us"
+  M_REGION_ASK="Выберите 1-3 [1]: "
+  M_REGION_ASK_AGAIN="Введите 1, 2 или 3."
+  M_REGION_CURRENT="Эта установка настроена на регион TSVerse: %s"
+  M_REGION_KEEP="Оставить этот регион? [Y/n] "
+  M_REGION_CHANGE_WARN="Другой регион — это отдельное пространство аккаунтов TSVerse: инстанс попросит новый вход."
+  M_REGION_SET="Регион TSVerse: %s"
+  M_REGION_BAD="Неизвестное значение TSLAB_REGION: %s (ожидается global, ru или us)."
+  M_REGION_WRITE_FAIL="Не удалось записать %s — регион остался прежним."
   M_PULL="Тяну образ: %s"
   M_RUN="(Пере)запускаю контейнер: %s"
   M_STARTED="Контейнер запущен (WebUI только на loopback: http://localhost:%s/)."
@@ -191,6 +239,87 @@ err()  { printf "%s\n" "${R}${G_ERR} $*${Z}" >&2; exit 1; }
 # fmt <template-with-%s> <value> — every template below carries a single %s placeholder.
 fmt()  { printf "$1" "${2:-}"; }
 
+# --- interactive helpers --------------------------------------------------
+# stdin is the curl pipe, so prompts talk to /dev/tty directly. Probe it by opening rather than
+# with [ -e ]: a present-but-unopenable tty would otherwise abort the script under `set -e`.
+tty_available() { { : >/dev/tty; } 2>/dev/null; }
+
+# mkdir -p, falling back to sudo for a root-owned parent (the container writes as root).
+make_dir() {
+  mkdir -p "$1" 2>/dev/null && return 0
+  [ -n "$SUDO" ] && $SUDO mkdir -p "$1" 2>/dev/null
+}
+
+# ask_yes_no <prompt> -> 0 = yes (the default), 1 = no
+ask_yes_no() {
+  ans=""
+  printf "%s" "$1" > /dev/tty
+  read -r ans < /dev/tty || ans=""
+  case "$ans" in [nN]*) return 1 ;; *) return 0 ;; esac
+}
+
+# ask_path <default> -> an absolute, creatable path on stdout (prompts go to the tty)
+ask_path() {
+  while :; do
+    ans=""
+    printf "%s" "$(fmt "$M_DATA_ASK" "$1")" > /dev/tty
+    read -r ans < /dev/tty || ans=""
+    [ -z "$ans" ] && ans="$1"
+    case "$ans" in
+      "~")   ans="$HOME" ;;
+      "~/"*) ans="$HOME/${ans#\~/}" ;;
+    esac
+    case "$ans" in
+      /*) ;;
+      *)  printf "%s\n" "$M_DATA_ABS_REQUIRED" > /dev/tty; continue ;;
+    esac
+    if make_dir "$ans"; then printf "%s" "$ans"; return 0; fi
+    printf "%s\n" "$(fmt "$M_DATA_MKDIR_FAIL" "$ans")" > /dev/tty
+  done
+}
+
+# --- TSVerse region -------------------------------------------------------
+# The console reads the region from launchSettings.json in its CommonData folder, and inside the
+# container CommonData is the profile path - i.e. the volume we mount. So the file simply lives
+# at <data dir>/launchSettings.json on the host.
+normalize_region() {
+  case "$(printf '%s' "${1:-}" | tr 'A-Z' 'a-z')" in
+    ru|russia|russian) printf ru ;;
+    us|usa)            printf us ;;
+    global|pro|world)  printf global ;;
+    *)                 printf '' ;;
+  esac
+}
+
+read_region() {  # read_region <data dir>
+  [ -f "$1/launchSettings.json" ] || return 0
+  sed -n 's/.*"legalRegion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$1/launchSettings.json" | head -1
+}
+
+write_region() {  # write_region <data dir> <region>
+  body="$(printf '{\n  "legalRegion": "%s"\n}\n' "$2")"
+  printf "%s" "$body" > "$1/launchSettings.json" 2>/dev/null && return 0
+  [ -n "$SUDO" ] && printf "%s" "$body" | $SUDO tee "$1/launchSettings.json" >/dev/null 2>&1
+}
+
+ask_region() {
+  printf "%s\n" "$M_REGION_TITLE" > /dev/tty
+  printf "%s\n" "$M_REGION_OPT_GLOBAL" > /dev/tty
+  printf "%s\n" "$M_REGION_OPT_RU" > /dev/tty
+  printf "%s\n" "$M_REGION_OPT_US" > /dev/tty
+  while :; do
+    ans=""
+    printf "%s" "$M_REGION_ASK" > /dev/tty
+    read -r ans < /dev/tty || ans=""
+    case "$ans" in
+      ""|1|global|GLOBAL|pro) printf global; return 0 ;;
+      2|ru|RU)                printf ru;     return 0 ;;
+      3|us|US)                printf us;     return 0 ;;
+      *) printf "%s\n" "$M_REGION_ASK_AGAIN" > /dev/tty ;;
+    esac
+  done
+}
+
 OS="$(uname -s)"
 
 # --- sudo -----------------------------------------------------------------
@@ -209,7 +338,7 @@ install_docker() {
     err "$M_DOCKER_MACOS"
   fi
   # Ask for confirmation while a terminal is reachable (works even under `curl | bash`).
-  if [ -e /dev/tty ]; then
+  if tty_available; then
     printf "%s" "$M_DOCKER_PROMPT" > /dev/tty
     read -r ans < /dev/tty || ans=""
     case "${ans}" in
@@ -255,9 +384,66 @@ if ! docker info >/dev/null 2>&1; then
 fi
 ok "$(fmt "$M_DOCKER_READY" "$($DOCKER version --format '{{.Server.Version}}' 2>/dev/null || echo '?')")"
 
-# --- container ------------------------------------------------------------
+# --- wizard: data folder --------------------------------------------------
+# An explicit TSLAB_DATA_DIR wins; otherwise reuse what the existing container has mounted, and
+# only fall back to the default when there is nothing to reuse.
+EXISTING_DATA_DIR="$($DOCKER inspect -f '{{range .Mounts}}{{if eq .Destination "/var/lib/tslab"}}{{.Source}}{{end}}{{end}}' "$NAME" 2>/dev/null || true)"
+
+if [ -n "${TSLAB_DATA_DIR:-}" ]; then
+  DATA_DIR="$TSLAB_DATA_DIR"
+elif [ -n "$EXISTING_DATA_DIR" ]; then
+  if tty_available; then
+    say "$(fmt "$M_DATA_FOUND" "${B}${EXISTING_DATA_DIR}${Z}")"
+    if ask_yes_no "$M_DATA_KEEP"; then
+      DATA_DIR="$EXISTING_DATA_DIR"
+    else
+      warn "$M_DATA_NEW_WARN"
+      DATA_DIR="$(ask_path "$DEFAULT_DATA_DIR")"
+    fi
+  else
+    DATA_DIR="$EXISTING_DATA_DIR"
+    say "$(fmt "$M_DATA_REUSED_AUTO" "$DATA_DIR")"
+  fi
+elif tty_available; then
+  DATA_DIR="$(ask_path "$DEFAULT_DATA_DIR")"
+else
+  DATA_DIR="$DEFAULT_DATA_DIR"
+fi
+
+make_dir "$DATA_DIR" || err "$(fmt "$M_DATA_MKDIR_FAIL" "$DATA_DIR")"
 say "$(fmt "$M_DATA_DIR" "${B}${DATA_DIR}${Z}")"
-mkdir -p "$DATA_DIR"
+
+# --- wizard: TSVerse region -----------------------------------------------
+CURRENT_REGION="$(normalize_region "$(read_region "$DATA_DIR")")"
+REGION="$(normalize_region "${TSLAB_REGION:-}")"
+if [ -n "${TSLAB_REGION:-}" ] && [ -z "$REGION" ]; then
+  err "$(fmt "$M_REGION_BAD" "$TSLAB_REGION")"
+fi
+if [ -z "$REGION" ]; then
+  if [ -n "$CURRENT_REGION" ]; then
+    if tty_available; then
+      say "$(fmt "$M_REGION_CURRENT" "${B}${CURRENT_REGION}${Z}")"
+      if ask_yes_no "$M_REGION_KEEP"; then
+        REGION="$CURRENT_REGION"
+      else
+        warn "$M_REGION_CHANGE_WARN"
+        REGION="$(ask_region)"
+      fi
+    else
+      REGION="$CURRENT_REGION"
+    fi
+  elif tty_available; then
+    REGION="$(ask_region)"
+  else
+    REGION="global"
+  fi
+fi
+if [ "$REGION" != "$CURRENT_REGION" ]; then
+  write_region "$DATA_DIR" "$REGION" || warn "$(fmt "$M_REGION_WRITE_FAIL" "$DATA_DIR/launchSettings.json")"
+fi
+ok "$(fmt "$M_REGION_SET" "${B}${REGION}${Z}")"
+
+# --- container ------------------------------------------------------------
 
 say "$(fmt "$M_PULL" "${B}${IMAGE}${Z}")"
 $DOCKER pull "$IMAGE"

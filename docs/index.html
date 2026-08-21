@@ -191,6 +191,19 @@
       switches to Russian with <code>TSLAB_LANG=ru</code>. Without the variable it follows the server locale,
       but stays English on a non-UTF-8 terminal, where Cyrillic would come out as mojibake.</div>
 
+    <div class="note" data-l="ru">🧭 <b>Мастер установки.</b> В терминале установщик спросит две вещи:
+      <b>папку для данных</b> и <b>регион TSVerse</b> (<code>global</code> — tsverse.pro, <code>ru</code> — tsverse.ru,
+      <code>us</code> — tsverse.us). Если TSLab уже стоит, папка существующего контейнера подставится
+      сама — достаточно нажать Enter, данные и вход сохранятся. Ответы можно задать заранее
+      переменными <code>TSLAB_DATA_DIR</code> и <code>TSLAB_REGION</code> — тогда вопросы не задаются
+      (удобно для автоматической установки).</div>
+    <div class="note" data-l="en">🧭 <b>Setup wizard.</b> On a terminal the installer asks two things:
+      the <b>data folder</b> and the <b>TSVerse region</b> (<code>global</code> for tsverse.pro,
+      <code>ru</code> for tsverse.ru, <code>us</code> for tsverse.us). If TSLab is already installed, the
+      existing container's folder is offered by default — just press Enter and both the data and the
+      sign-in are kept. Preset either answer with <code>TSLAB_DATA_DIR</code> and
+      <code>TSLAB_REGION</code> to skip the questions (handy for unattended installs).</div>
+
     <div class="note warn" data-l="ru">⚠️ <b>Windows / PowerShell:</b> используйте вкладку <b>«Windows (PowerShell)»</b> выше
       (команду <code>irm … | iex</code>). Команда <code>curl … | bash</code> в PowerShell <b>не работает</b> —
       там <code>curl</code> это <code>Invoke-WebRequest</code>, и вы получите ошибку «Не удается найти параметр fsSL».</div>
@@ -338,8 +351,10 @@ docker rm -f tslab        # remove the container (data is kept)</code></pre>
 
     <h3 data-l="ru">Обновление до новой версии</h3>
     <h3 data-l="en">Update to a newer version</h3>
-    <p class="muted" data-l="ru">Просто запустите установку ещё раз — подтянется свежий образ, данные и вход в TSVerse сохранятся:</p>
-    <p class="muted" data-l="en">Just run the installation again — it pulls the fresh image and keeps your data and the TSVerse sign-in:</p>
+    <p class="muted" data-l="ru">Просто запустите установку ещё раз — подтянется свежий образ, а папка данных,
+      регион и вход в TSVerse сохранятся (мастер сам предложит текущую папку):</p>
+    <p class="muted" data-l="en">Just run the installation again — it pulls the fresh image and keeps the data folder,
+      the region and the TSVerse sign-in (the wizard offers the current folder by default):</p>
     <div class="codewrap solo" data-l="ru">
       <button class="copy">Копировать</button>
       <pre><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_LANG=ru bash</code></pre>
@@ -413,6 +428,19 @@ docker rm -f tslab        # remove the container (data is kept)</code></pre>
         pipe. The file on this site is served with LF, so just run the command again. If it persists you are most
         likely running a local copy: strip its line endings
         (<code>sed -i 's/\r$//' install.sh</code>) or download it anew.</div></details>
+
+    <details data-l="ru"><summary>Как сменить папку данных или регион TSVerse позже</summary>
+      <div class="body">Запустите установку ещё раз: мастер покажет текущую папку и текущий регион —
+        ответьте <code>n</code> и выберите другие. Разово можно и без вопросов:
+        <br><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash</code>
+        <br>Регион хранится в файле <code>&lt;папка данных&gt;/launchSettings.json</code>. Учтите: смена
+        региона или папки — это другой аккаунтный контур, инстанс попросит новый вход в TSVerse.</div></details>
+    <details data-l="en"><summary>How to change the data folder or the TSVerse region later</summary>
+      <div class="body">Run the installation again: the wizard shows the current folder and region —
+        answer <code>n</code> and pick different ones. Or skip the questions entirely:
+        <br><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash</code>
+        <br>The region lives in <code>&lt;data folder&gt;/launchSettings.json</code>. Note that changing the
+        region or the folder means a different account space — the instance will ask for a new TSVerse sign-in.</div></details>
 
     <details data-l="ru"><summary>Вместо русского текста «кракозябры»</summary>
       <div class="body">Терминал не в UTF-8. Либо переключите его на UTF-8
