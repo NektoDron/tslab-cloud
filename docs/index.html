@@ -191,15 +191,17 @@
       switches to Russian with <code>TSLAB_LANG=ru</code>. Without the variable it follows the server locale,
       but stays English on a non-UTF-8 terminal, where Cyrillic would come out as mojibake.</div>
 
-    <div class="note" data-l="ru">🧭 <b>Мастер установки.</b> В терминале установщик спросит две вещи:
-      <b>папку для данных</b> и <b>регион TSVerse</b> (<code>global</code> — tsverse.pro, <code>ru</code> — tsverse.ru,
-      <code>us</code> — tsverse.us). Если TSLab уже стоит, папка существующего контейнера подставится
+    <div class="note" data-l="ru">🧭 <b>Мастер установки.</b> В терминале установщик спросит три вещи:
+      <b>папку для данных</b>, <b>регион TSVerse</b> (<code>global</code> — tsverse.pro, <code>ru</code> — tsverse.ru,
+      <code>us</code> — tsverse.us) и <b>окружение</b> (<code>prod</code> по умолчанию, <code>staging</code>,
+      <code>dev</code>). Если TSLab уже стоит, папка существующего контейнера подставится
       сама — достаточно нажать Enter, данные и вход сохранятся. Ответы можно задать заранее
       переменными <code>TSLAB_DATA_DIR</code> и <code>TSLAB_REGION</code> — тогда вопросы не задаются
       (удобно для автоматической установки).</div>
-    <div class="note" data-l="en">🧭 <b>Setup wizard.</b> On a terminal the installer asks two things:
-      the <b>data folder</b> and the <b>TSVerse region</b> (<code>global</code> for tsverse.pro,
-      <code>ru</code> for tsverse.ru, <code>us</code> for tsverse.us). If TSLab is already installed, the
+    <div class="note" data-l="en">🧭 <b>Setup wizard.</b> On a terminal the installer asks three things:
+      the <b>data folder</b>, the <b>TSVerse region</b> (<code>global</code> for tsverse.pro,
+      <code>ru</code> for tsverse.ru, <code>us</code> for tsverse.us) and the <b>environment</b>
+      (<code>prod</code> by default, <code>staging</code>, <code>dev</code>). If TSLab is already installed, the
       existing container's folder is offered by default — just press Enter and both the data and the
       sign-in are kept. Preset either answer with <code>TSLAB_DATA_DIR</code> and
       <code>TSLAB_REGION</code> to skip the questions (handy for unattended installs).</div>
@@ -428,6 +430,31 @@ docker rm -f tslab        # remove the container (data is kept)</code></pre>
         pipe. The file on this site is served with LF, so just run the command again. If it persists you are most
         likely running a local copy: strip its line endings
         (<code>sed -i 's/\r$//' install.sh</code>) or download it anew.</div></details>
+
+    <details data-l="ru"><summary>Тестовое окружение и подмена адресов (для отладки)</summary>
+      <div class="body">Установщик умеет ставить инстанс не в бой: выберите в мастере окружение
+        <code>staging</code> или <code>dev</code> — контейнер запустится с
+        <code>TSLab__Environment=Development</code> и пойдёт в dev-овские tsstorage / tssignal / id и т.д.
+        <br>Для не-боевых окружений мастер дополнительно спросит два необязательных адреса:
+        <b>identity-сервера</b> (удобно отлаживать страницы <code>/device*</code>) и <b>marketplace</b> —
+        Enter оставляет адреса окружения, <code>-</code> сбрасывает подмену.
+        <br>Без вопросов, одной строкой:
+        <br><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_ENV=dev TSLAB_REGION=ru TSLAB_IDENTITY_URL=http://192.168.0.10:5001 TSLAB_MARKETPLACE_URL=http://192.168.0.10:8080/v1 bash</code>
+        <br>Подмены складываются в <code>&lt;папка данных&gt;/environment.override.json</code> и монтируются
+        в контейнер как <code>/app/environment.json</code> — файл накрывает только указанные адреса,
+        остальные берутся из каталога окружения. При возврате на <code>prod</code> файл удаляется.</div></details>
+    <details data-l="en"><summary>Test environment and endpoint overrides (for debugging)</summary>
+      <div class="body">The installer can put the instance somewhere other than production: pick
+        <code>staging</code> or <code>dev</code> in the wizard and the container starts with
+        <code>TSLab__Environment=Development</code>, talking to the dev tsstorage / tssignal / id and so on.
+        <br>For non-production environments the wizard also asks for two optional URLs: the
+        <b>identity server</b> (handy for debugging the <code>/device*</code> pages) and <b>marketplace</b> —
+        Enter keeps the environment defaults, <code>-</code> clears an override.
+        <br>Without any questions, in one line:
+        <br><code>curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_ENV=dev TSLAB_REGION=ru TSLAB_IDENTITY_URL=http://192.168.0.10:5001 TSLAB_MARKETPLACE_URL=http://192.168.0.10:8080/v1 bash</code>
+        <br>The overrides land in <code>&lt;data folder&gt;/environment.override.json</code> and are mounted into
+        the container as <code>/app/environment.json</code>. The file overrides only the listed URLs; the rest
+        come from the environment catalog. Switching back to <code>prod</code> deletes it.</div></details>
 
     <details data-l="ru"><summary>Как сменить папку данных или регион TSVerse позже</summary>
       <div class="body">Запустите установку ещё раз: мастер покажет текущую папку и текущий регион —

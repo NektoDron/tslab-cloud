@@ -14,13 +14,15 @@
 #   Without TSLAB_LANG the installer follows the Windows UI culture, and it falls back to English
 #   whenever the console cannot be switched to UTF-8.
 #
-# On an interactive console the installer asks where to keep the data and which TSVerse region to
-# use (global / ru / us); it reuses the data folder of an existing container by default. Setting
-# $env:TSLAB_DATA_DIR or $env:TSLAB_REGION skips the matching question, and $env:TSLAB_NONINTERACTIVE
-# suppresses both - handy for unattended runs.
+# On an interactive console the installer asks where to keep the data, which TSVerse region to use
+# (global / ru / us) and which environment (prod / staging / dev); it reuses the data folder of an
+# existing container by default. On a non-production environment it also offers to redirect the
+# identity and marketplace URLs, which is what debugging the /device* pages needs.
 #
 # Other variables (optional): $env:TSLAB_IMAGE, $env:TSLAB_NAME, $env:TSLAB_PORT,
-#   $env:TSLAB_DATA_DIR, $env:TSLAB_REGION (global|ru|us), $env:TSLAB_NONINTERACTIVE
+#   $env:TSLAB_DATA_DIR, $env:TSLAB_REGION (global|ru|us), $env:TSLAB_ENV (prod|staging|dev),
+#   $env:TSLAB_IDENTITY_URL, $env:TSLAB_MARKETPLACE_URL, $env:TSLAB_NONINTERACTIVE
+# Any of them preset the answer and skip the matching question.
 #
 # IMPORTANT: the script is run through `iex` in the current session, so it NEVER calls `exit`
 # (that would close the PowerShell window) - everything lives in a function, errors are printed
@@ -64,6 +66,24 @@ function Get-TSLabStringsEn {
     RegionSet        = 'TSVerse region: {0}'
     RegionBad        = 'Unknown TSLAB_REGION value: {0} (expected global, ru or us).'
     RegionWriteFail  = 'Could not write {0} - the region stays as it was.'
+    EnvTitle         = 'TSVerse environment:'
+    EnvOptProd       = '  1) prod    - production (default)'
+    EnvOptStaging    = '  2) staging - staging'
+    EnvOptDev        = '  3) dev     - development'
+    EnvAsk           = 'Choose 1-3 [1]'
+    EnvAskAgain      = 'Please enter 1, 2 or 3.'
+    EnvCurrent       = 'This installation runs against the environment: {0}'
+    EnvKeep          = 'Keep this environment? [Y/n]'
+    EnvSet           = 'Environment: {0}'
+    EnvBad           = 'Unknown TSLAB_ENV value: {0} (expected prod, staging or dev).'
+    UrlHint          = 'Optional endpoint overrides for debugging - press Enter to use the defaults of the chosen environment.'
+    UrlIdentity      = 'Identity server URL [{0}]'
+    UrlMarketplace   = 'Marketplace URL [{0}]'
+    UrlDefault       = 'default'
+    UrlBad           = 'The URL has to start with http:// or https://'
+    UrlSet           = 'Endpoint overrides: {0}'
+    UrlNone          = 'Endpoint overrides: none (environment defaults)'
+    UrlWriteFail     = 'Could not write {0} - the overrides are not applied.'
     Pull             = 'Pulling the image: {0}  (may take a couple of minutes)...'
     PullFailed       = 'Could not download the image. Check the internet connection and that Docker is running, then try again.'
     Run              = '(Re)starting the container: {0}'
@@ -128,6 +148,24 @@ function Get-TSLabStringsRu {
     RegionSet        = '0KDQtdCz0LjQvtC9IFRTVmVyc2U6IHswfQ=='  # Регион TSVerse: {0}
     RegionBad        = '0J3QtdC40LfQstC10YHRgtC90L7QtSDQt9C90LDRh9C10L3QuNC1IFRTTEFCX1JFR0lPTjogezB9ICjQvtC20LjQtNCw0LXRgtGB0Y8gZ2xvYmFsLCBydSDQuNC70LggdXMpLg=='  # Неизвестное значение TSLAB_REGION: {0} (ожидается global, ru или us).
     RegionWriteFail  = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/QuNGB0LDRgtGMIHswfSDigJQg0YDQtdCz0LjQvtC9INC+0YHRgtCw0LvRgdGPINC/0YDQtdC20L3QuNC8Lg=='  # Не удалось записать {0} — регион остался прежним.
+    EnvTitle         = '0J7QutGA0YPQttC10L3QuNC1IFRTVmVyc2U6'  # Окружение TSVerse:
+    EnvOptProd       = 'ICAxKSBwcm9kICAgIOKAlCDQsdC+0LXQstC+0LUgKNC/0L4g0YPQvNC+0LvRh9Cw0L3QuNGOKQ=='  #   1) prod    — боевое (по умолчанию)
+    EnvOptStaging    = 'ICAyKSBzdGFnaW5nIOKAlCDQv9GA0LXQtNC/0YDQvtC0'  #   2) staging — предпрод
+    EnvOptDev        = 'ICAzKSBkZXYgICAgIOKAlCDRgNCw0LfRgNCw0LHQvtGC0LrQsA=='  #   3) dev     — разработка
+    EnvAsk           = '0JLRi9Cx0LXRgNC40YLQtSAxLTMgWzFd'  # Выберите 1-3 [1]
+    EnvAskAgain      = '0JLQstC10LTQuNGC0LUgMSwgMiDQuNC70LggMy4='  # Введите 1, 2 или 3.
+    EnvCurrent       = '0K3RgtCwINGD0YHRgtCw0L3QvtCy0LrQsCDRgNCw0LHQvtGC0LDQtdGCINGBINC+0LrRgNGD0LbQtdC90LjQtdC8OiB7MH0='  # Эта установка работает с окружением: {0}
+    EnvKeep          = '0J7RgdGC0LDQstC40YLRjCDRjdGC0L4g0L7QutGA0YPQttC10L3QuNC1PyBbWS9uXQ=='  # Оставить это окружение? [Y/n]
+    EnvSet           = '0J7QutGA0YPQttC10L3QuNC1OiB7MH0='  # Окружение: {0}
+    EnvBad           = '0J3QtdC40LfQstC10YHRgtC90L7QtSDQt9C90LDRh9C10L3QuNC1IFRTTEFCX0VOVjogezB9ICjQvtC20LjQtNCw0LXRgtGB0Y8gcHJvZCwgc3RhZ2luZyDQuNC70LggZGV2KS4='  # Неизвестное значение TSLAB_ENV: {0} (ожидается prod, staging или dev).
+    UrlHint          = '0J3QtdC+0LHRj9C30LDRgtC10LvRjNC90YvQtSDQv9C+0LTQvNC10L3RiyDQsNC00YDQtdGB0L7QsiDQtNC70Y8g0L7RgtC70LDQtNC60Lgg4oCUIEVudGVyINC+0YHRgtCw0LLQu9GP0LXRgiDQsNC00YDQtdGB0LAg0LLRi9Cx0YDQsNC90L3QvtCz0L4g0L7QutGA0YPQttC10L3QuNGPLg=='  # Необязательные подмены адресов для отладки — Enter оставляет адреса выбранного окружения.
+    UrlIdentity      = 'VVJMIGlkZW50aXR5LdGB0LXRgNCy0LXRgNCwIFt7MH1d'  # URL identity-сервера [{0}]
+    UrlMarketplace   = 'VVJMIG1hcmtldHBsYWNlIFt7MH1d'  # URL marketplace [{0}]
+    UrlDefault       = '0L/QviDRg9C80L7Qu9GH0LDQvdC40Y4='  # по умолчанию
+    UrlBad           = 'VVJMINC00L7Qu9C20LXQvSDQvdCw0YfQuNC90LDRgtGM0YHRjyDRgSBodHRwOi8vINC40LvQuCBodHRwczovLw=='  # URL должен начинаться с http:// или https://
+    UrlSet           = '0J/QvtC00LzQtdC90LAg0LDQtNGA0LXRgdC+0LI6IHswfQ=='  # Подмена адресов: {0}
+    UrlNone          = '0J/QvtC00LzQtdC90LAg0LDQtNGA0LXRgdC+0LI6INC90LXRgiAo0LDQtNGA0LXRgdCwINC+0LrRgNGD0LbQtdC90LjRjyk='  # Подмена адресов: нет (адреса окружения)
+    UrlWriteFail     = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/QuNGB0LDRgtGMIHswfSDigJQg0L/QvtC00LzQtdC90Ysg0L3QtSDQv9GA0LjQvNC10L3QtdC90Ysu'  # Не удалось записать {0} — подмены не применены.
     PullFailed       = '0J3QtSDRg9C00LDQu9C+0YHRjCDRgdC60LDRh9Cw0YLRjCDQvtCx0YDQsNC3LiDQn9GA0L7QstC10YDRjNGC0LUg0LjQvdGC0LXRgNC90LXRgiDQuCDRh9GC0L4gRG9ja2VyINC30LDQv9GD0YnQtdC9LCDQt9Cw0YLQtdC8INC/0L7QstGC0L7RgNC40YLQtS4='  # Не удалось скачать образ. Проверьте интернет и что Docker запущен, затем повторите.
     Run              = 'KNCf0LXRgNC1KdC30LDQv9GD0YHQutCw0Y4g0LrQvtC90YLQtdC50L3QtdGAOiB7MH0='  # (Пере)запускаю контейнер: {0}
     RunFailed        = '0J3QtSDRg9C00LDQu9C+0YHRjCDQt9Cw0L/Rg9GB0YLQuNGC0Ywg0LrQvtC90YLQtdC50L3QtdGALiDQn9C+0LTRgNC+0LHQvdC+0YHRgtC4OiBkb2NrZXIgbG9ncyB7MH0='  # Не удалось запустить контейнер. Подробности: docker logs {0}
@@ -262,6 +300,80 @@ function Set-TSLabRegionFile([string]$DataDir, [string]$Region) {
   } catch { return $false }
 }
 
+# The console picks its environment from TSLab__Environment (the image ships Production) and merges an
+# optional /app/environment.json over the embedded endpoint catalog - only the listed properties are
+# overridden, so a two-line file is enough to redirect identity or marketplace.
+function ConvertTo-TSLabEnvironment([string]$Value) {
+  if ([string]::IsNullOrWhiteSpace($Value)) { return '' }
+  switch ($Value.Trim().ToLowerInvariant()) {
+    'prod'        { return 'Production' }
+    'production'  { return 'Production' }
+    'stage'       { return 'Staging' }
+    'staging'     { return 'Staging' }
+    'dev'         { return 'Development' }
+    'development' { return 'Development' }
+    default       { return '' }
+  }
+}
+
+function Read-TSLabEnvironment($L) {
+  Write-Host $L.EnvTitle
+  Write-Host $L.EnvOptProd
+  Write-Host $L.EnvOptStaging
+  Write-Host $L.EnvOptDev
+  while ($true) {
+    $a = (Read-Host -Prompt $L.EnvAsk)
+    if ($null -eq $a) { $a = '' }
+    switch -Regex ($a.Trim()) {
+      '^(1|prod|production)?$' { return 'Production' }
+      '^(2|stage|staging)$'    { return 'Staging' }
+      '^(3|dev|development)$'  { return 'Development' }
+      default { Write-Host $L.EnvAskAgain -ForegroundColor Yellow }
+    }
+  }
+}
+
+function Read-TSLabUrl([string]$Template, [string]$Current, $L) {
+  while ($true) {
+    $shown = if ([string]::IsNullOrWhiteSpace($Current)) { $L.UrlDefault } else { $Current }
+    $a = Read-Host -Prompt ($Template -f $shown)
+    if ($null -eq $a) { $a = '' }
+    $a = $a.Trim()
+    if ($a -eq '') { return $Current }
+    if ($a -eq '-' -or $a -eq 'none') { return '' }
+    if ($a -match '^https?://') { return $a }
+    Write-Host $L.UrlBad -ForegroundColor Yellow
+  }
+}
+
+function Get-TSLabOverride([string]$DataDir, [string]$Key) {
+  $f = Join-Path $DataDir 'environment.override.json'
+  if (-not (Test-Path $f)) { return '' }
+  try {
+    $m = Select-String -Path $f -Pattern ('"' + $Key + '"\s*:\s*"([^"]*)"') | Select-Object -First 1
+    if ($m) { return $m.Matches[0].Groups[1].Value }
+  } catch { }
+  return ''
+}
+
+function Set-TSLabOverrides([string]$DataDir, [string]$EnvName, [string]$Region, [string]$Identity, [string]$Marketplace) {
+  $nl = "`r`n"
+  $body = "{$nl  ""environments"": {$nl    ""$EnvName"": {$nl      ""$Region"": {"
+  $sep = ''
+  if ($Identity)    { $body += "$nl        ""identityUrl"": ""$Identity"""; $sep = ',' }
+  if ($Marketplace) { $body += "$sep$nl        ""marketplaceBaseUrl"": ""$Marketplace""" }
+  $body += "$nl      }$nl    }$nl  }$nl}$nl"
+  try {
+    [System.IO.File]::WriteAllText((Join-Path $DataDir 'environment.override.json'), $body, (New-Object System.Text.UTF8Encoding($false)))
+    return $true
+  } catch { return $false }
+}
+
+function Remove-TSLabOverrides([string]$DataDir) {
+  $f = Join-Path $DataDir 'environment.override.json'
+  if (Test-Path $f) { try { Remove-Item -Force -Path $f } catch { } }
+}
+
 function Invoke-TSLabInstall {
   $L = Get-TSLabStrings
   $sep = '-' * 64
@@ -365,17 +477,78 @@ function Invoke-TSLabInstall {
   }
   Ok ($L.RegionSet -f $Region)
 
+  # --- wizard: TSVerse environment -------------------------------------------
+  $currentEnv = ''
+  try {
+    $envLines = docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' $Name 2>$null
+    if ($envLines) {
+      $m = $envLines | Select-String -Pattern '^TSLab__Environment=(.*)$' | Select-Object -First 1
+      if ($m) { $currentEnv = ConvertTo-TSLabEnvironment $m.Matches[0].Groups[1].Value }
+    }
+  } catch { }
+
+  $EnvName = ConvertTo-TSLabEnvironment $env:TSLAB_ENV
+  if ($env:TSLAB_ENV -and -not $EnvName) { Fail ($L.EnvBad -f $env:TSLAB_ENV); return }
+  if (-not $EnvName) {
+    if ($currentEnv -and $currentEnv -ne 'Production') {
+      if (Test-TSLabInteractive) {
+        Say ($L.EnvCurrent -f $currentEnv)
+        if (Read-TSLabYesNo $L.EnvKeep) { $EnvName = $currentEnv } else { $EnvName = Read-TSLabEnvironment $L }
+      }
+      else { $EnvName = $currentEnv }
+    }
+    elseif (Test-TSLabInteractive) { $EnvName = Read-TSLabEnvironment $L }
+    else { if ($currentEnv) { $EnvName = $currentEnv } else { $EnvName = 'Production' } }
+  }
+  Ok ($L.EnvSet -f $EnvName)
+
+  # --- wizard: endpoint overrides (debugging, non-production only) ------------
+  $IdentityUrl = $env:TSLAB_IDENTITY_URL
+  $MarketplaceUrl = $env:TSLAB_MARKETPLACE_URL
+  if (-not $IdentityUrl) { $IdentityUrl = Get-TSLabOverride $DataDir 'identityUrl' }
+  if (-not $MarketplaceUrl) { $MarketplaceUrl = Get-TSLabOverride $DataDir 'marketplaceBaseUrl' }
+  if ($EnvName -eq 'Production') {
+    $IdentityUrl = ''
+    $MarketplaceUrl = ''
+  }
+  elseif (-not $env:TSLAB_IDENTITY_URL -and -not $env:TSLAB_MARKETPLACE_URL -and (Test-TSLabInteractive)) {
+    Say $L.UrlHint
+    $IdentityUrl = Read-TSLabUrl $L.UrlIdentity $IdentityUrl $L
+    $MarketplaceUrl = Read-TSLabUrl $L.UrlMarketplace $MarketplaceUrl $L
+  }
+
+  $OverrideFile = ''
+  if ($IdentityUrl -or $MarketplaceUrl) {
+    if (Set-TSLabOverrides $DataDir $EnvName $Region $IdentityUrl $MarketplaceUrl) {
+      $OverrideFile = Join-Path $DataDir 'environment.override.json'
+      $shownId = if ($IdentityUrl) { $IdentityUrl } else { '-' }
+      $shownMk = if ($MarketplaceUrl) { $MarketplaceUrl } else { '-' }
+      Ok ($L.UrlSet -f "$shownId $shownMk")
+    }
+    else { Warn ($L.UrlWriteFail -f (Join-Path $DataDir 'environment.override.json')) }
+  }
+  else {
+    Remove-TSLabOverrides $DataDir
+    Say $L.UrlNone
+  }
+
   Say ($L.Pull -f $Image)
   docker pull $Image
   if ($LASTEXITCODE -ne 0) { Fail $L.PullFailed; return }
 
   Say ($L.Run -f $Name)
   docker rm -f $Name 2>$null | Out-Null
-  docker run -d --name $Name --restart unless-stopped `
-    -p "127.0.0.1:${Port}:5000" `
-    -e TSLAB_PROFILE_PATH=/var/lib/tslab `
-    -v "${DataDir}:/var/lib/tslab" `
-    $Image | Out-Null
+  $runArgs = @(
+    'run', '-d', '--name', $Name, '--restart', 'unless-stopped',
+    '-p', "127.0.0.1:${Port}:5000",
+    '-e', 'TSLAB_PROFILE_PATH=/var/lib/tslab',
+    '-e', "TSLab__Environment=$EnvName",
+    '-v', "${DataDir}:/var/lib/tslab"
+  )
+  # The catalog override is merged over the embedded environment.json in the image working dir.
+  if ($OverrideFile) { $runArgs += @('-v', "${OverrideFile}:/app/environment.json:ro") }
+  $runArgs += $Image
+  docker @runArgs | Out-Null
   if ($LASTEXITCODE -ne 0) { Fail ($L.RunFailed -f $Name); return }
   Ok ($L.Started -f $Port)
 

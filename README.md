@@ -33,7 +33,7 @@ The command:
 
 ### Setup wizard: data folder and TSVerse region
 
-On a terminal the installer asks two questions:
+On a terminal the installer asks three questions:
 
 - **Data folder** — where the profile (DB, scripts, settings, TSVerse session) lives on the host.
   When a `tslab` container already exists, its mounted folder is detected with `docker inspect` and
@@ -41,11 +41,18 @@ On a terminal the installer asks two questions:
 - **TSVerse region** — `global` (tsverse.pro), `ru` (tsverse.ru) or `us` (tsverse.us). It is stored
   as `<data folder>/launchSettings.json` (`{"legalRegion": "..."}`), which the console reads from its
   CommonData folder — inside the container that folder is the mounted profile path.
+- **Environment** — `prod` (default), `staging` or `dev`, passed to the container as
+  `TSLab__Environment` (the image ships `Production`). On a non-production environment the wizard also
+  asks for two optional overrides — the **identity server URL** (for debugging the `/device*` pages)
+  and the **marketplace URL**. They are written to `<data folder>/environment.override.json` and
+  mounted as `/app/environment.json`, which the console merges over its embedded endpoint catalog;
+  only the listed URLs are replaced. Switching back to `prod` removes the file.
 
 Preset either answer to skip the matching question:
 
 ```bash
 curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash
+curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_ENV=dev TSLAB_IDENTITY_URL=http://192.168.0.10:5001 bash
 ```
 
 ```powershell
@@ -125,7 +132,7 @@ $env:TSLAB_LANG='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | 
 
 ### Мастер: папка данных и регион TSVerse
 
-В терминале установщик задаёт два вопроса:
+В терминале установщик задаёт три вопроса:
 
 - **Папка данных** — где на хосте лежит профиль (база, скрипты, настройки, сессия TSVerse). Если
   контейнер `tslab` уже есть, его примонтированная папка определяется через `docker inspect` и
@@ -133,11 +140,18 @@ $env:TSLAB_LANG='ru'; irm https://nektodron.github.io/tslab-cloud/install.ps1 | 
 - **Регион TSVerse** — `global` (tsverse.pro), `ru` (tsverse.ru) или `us` (tsverse.us). Хранится в
   `<папка данных>/launchSettings.json` (`{"legalRegion": "..."}`): консоль читает его из своей папки
   CommonData, а внутри контейнера это и есть примонтированный профиль.
+- **Окружение** — `prod` (по умолчанию), `staging` или `dev`; уезжает в контейнер как
+  `TSLab__Environment` (в образе прошито `Production`). Для не-боевого окружения мастер спросит ещё
+  два необязательных адреса — **identity-сервера** (для отладки страниц `/device*`) и **marketplace**.
+  Они пишутся в `<папка данных>/environment.override.json` и монтируются как `/app/environment.json`:
+  консоль накладывает этот файл на встроенный каталог адресов, перетирая только указанные URL.
+  При возврате на `prod` файл удаляется.
 
 Чтобы вопрос не задавался, задайте ответ переменной:
 
 ```bash
 curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_DATA_DIR=/srv/tslab TSLAB_REGION=ru bash
+curl -fsSL https://nektodron.github.io/tslab-cloud/install.sh | TSLAB_ENV=dev TSLAB_IDENTITY_URL=http://192.168.0.10:5001 bash
 ```
 
 ```powershell

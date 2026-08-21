@@ -26,12 +26,16 @@
 #   TSLAB_NAME            container name (default tslab)
 #   TSLAB_PORT            local WebUI port bound to loopback (default 8088)
 #   TSLAB_DATA_DIR        data directory on the host (default ~/.local/share/tslab)
-#   TSLAB_REGION          global | ru | us - TSVerse region (default: asked, then global)
+#   TSLAB_REGION          global | ru | us — TSVerse region (default: asked, then global)
+#   TSLAB_ENV             prod | staging | dev — TSVerse environment (default: asked, then prod)
+#   TSLAB_IDENTITY_URL    override the identity server URL (debugging; empty = environment default)
+#   TSLAB_MARKETPLACE_URL override the marketplace URL (debugging; empty = environment default)
 #   TSLAB_INSTALL_DOCKER  0 — never install Docker automatically
 #
 # On a terminal the installer asks where to keep the data and which TSVerse region to use; it
-# reuses the data folder of an existing container by default. Setting TSLAB_DATA_DIR or
-# TSLAB_REGION skips the matching question, so piped/unattended runs stay deterministic.
+# reuses the data folder of an existing container by default. Setting TSLAB_DATA_DIR, TSLAB_ENV or
+# TSLAB_REGION skips the matching question, so piped/unattended runs stay deterministic. The two
+# URL overrides are only offered for the staging/dev environments.
 #
 # MAINTAINERS: this file must stay LF-only. With CRLF, bash reads `set -o pipefail<CR>` and dies
 # with ": invalid option nameipefail". `.gitattributes` pins `*.sh text eol=lf`.
@@ -84,7 +88,7 @@ esac
 strings_en() {
   M_HELP="Usage: install.sh [--lang en|ru]
 Environment: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_REGION,
-             TSLAB_INSTALL_DOCKER
+             TSLAB_ENV, TSLAB_IDENTITY_URL, TSLAB_MARKETPLACE_URL, TSLAB_INSTALL_DOCKER
 Docs: https://nektodron.github.io/tslab-cloud/"
   M_DOCKER_MISSING="Docker not found."
   M_DOCKER_AUTOINSTALL_OFF="Automatic Docker installation is disabled. Install Docker and run this script again."
@@ -118,6 +122,24 @@ Docs: https://nektodron.github.io/tslab-cloud/"
   M_REGION_SET="TSVerse region: %s"
   M_REGION_BAD="Unknown TSLAB_REGION value: %s (expected global, ru or us)."
   M_REGION_WRITE_FAIL="Could not write %s - the region stays as it was."
+  M_ENV_TITLE="TSVerse environment:"
+  M_ENV_OPT_PROD="  1) prod    - production (default)"
+  M_ENV_OPT_STAGING="  2) staging - staging"
+  M_ENV_OPT_DEV="  3) dev     - development"
+  M_ENV_ASK="Choose 1-3 [1]: "
+  M_ENV_ASK_AGAIN="Please enter 1, 2 or 3."
+  M_ENV_CURRENT="This installation runs against the environment: %s"
+  M_ENV_KEEP="Keep this environment? [Y/n] "
+  M_ENV_SET="Environment: %s"
+  M_ENV_BAD="Unknown TSLAB_ENV value: %s (expected prod, staging or dev)."
+  M_URL_HINT="Optional endpoint overrides for debugging - press Enter to use the defaults of the chosen environment."
+  M_URL_IDENTITY="Identity server URL [%s]: "
+  M_URL_MARKETPLACE="Marketplace URL [%s]: "
+  M_URL_DEFAULT="default"
+  M_URL_BAD="The URL has to start with http:// or https://"
+  M_URL_SET="Endpoint overrides: %s"
+  M_URL_NONE="Endpoint overrides: none (environment defaults)"
+  M_URL_WRITE_FAIL="Could not write %s - the overrides are not applied."
   M_PULL="Pulling the image: %s"
   M_RUN="(Re)starting the container: %s"
   M_STARTED="Container started (WebUI on loopback only: http://localhost:%s/)."
@@ -150,7 +172,7 @@ Docs: https://nektodron.github.io/tslab-cloud/"
 strings_ru() {
   M_HELP="Использование: install.sh [--lang en|ru]
 Переменные окружения: TSLAB_LANG, TSLAB_IMAGE, TSLAB_NAME, TSLAB_PORT, TSLAB_DATA_DIR, TSLAB_REGION,
-                      TSLAB_INSTALL_DOCKER
+                      TSLAB_ENV, TSLAB_IDENTITY_URL, TSLAB_MARKETPLACE_URL, TSLAB_INSTALL_DOCKER
 Инструкция: https://nektodron.github.io/tslab-cloud/"
   M_DOCKER_MISSING="Docker не найден."
   M_DOCKER_AUTOINSTALL_OFF="Автоустановка Docker отключена. Установите Docker и запустите скрипт снова."
@@ -184,6 +206,24 @@ strings_ru() {
   M_REGION_SET="Регион TSVerse: %s"
   M_REGION_BAD="Неизвестное значение TSLAB_REGION: %s (ожидается global, ru или us)."
   M_REGION_WRITE_FAIL="Не удалось записать %s — регион остался прежним."
+  M_ENV_TITLE="Окружение TSVerse:"
+  M_ENV_OPT_PROD="  1) prod    — боевое (по умолчанию)"
+  M_ENV_OPT_STAGING="  2) staging — предпрод"
+  M_ENV_OPT_DEV="  3) dev     — разработка"
+  M_ENV_ASK="Выберите 1-3 [1]: "
+  M_ENV_ASK_AGAIN="Введите 1, 2 или 3."
+  M_ENV_CURRENT="Эта установка работает с окружением: %s"
+  M_ENV_KEEP="Оставить это окружение? [Y/n] "
+  M_ENV_SET="Окружение: %s"
+  M_ENV_BAD="Неизвестное значение TSLAB_ENV: %s (ожидается prod, staging или dev)."
+  M_URL_HINT="Необязательные подмены адресов для отладки — Enter оставляет адреса выбранного окружения."
+  M_URL_IDENTITY="URL identity-сервера [%s]: "
+  M_URL_MARKETPLACE="URL marketplace [%s]: "
+  M_URL_DEFAULT="по умолчанию"
+  M_URL_BAD="URL должен начинаться с http:// или https://"
+  M_URL_SET="Подмена адресов: %s"
+  M_URL_NONE="Подмена адресов: нет (адреса окружения)"
+  M_URL_WRITE_FAIL="Не удалось записать %s — подмены не применены."
   M_PULL="Тяну образ: %s"
   M_RUN="(Пере)запускаю контейнер: %s"
   M_STARTED="Контейнер запущен (WebUI только на loopback: http://localhost:%s/)."
@@ -300,6 +340,79 @@ write_region() {  # write_region <data dir> <region>
   body="$(printf '{\n  "legalRegion": "%s"\n}\n' "$2")"
   printf "%s" "$body" > "$1/launchSettings.json" 2>/dev/null && return 0
   [ -n "$SUDO" ] && printf "%s" "$body" | $SUDO tee "$1/launchSettings.json" >/dev/null 2>&1
+}
+
+# The console picks its environment from TSLab__Environment (the image ships Production) and merges
+# an optional /app/environment.json over the embedded endpoint catalog - only the listed properties
+# are overridden, so a two-line file is enough to redirect identity or marketplace.
+normalize_env() {
+  case "$(printf '%s' "${1:-}" | tr 'A-Z' 'a-z')" in
+    prod|production)  printf Production ;;
+    stage|staging)    printf Staging ;;
+    dev|development)  printf Development ;;
+    *)                printf '' ;;
+  esac
+}
+
+ask_env() {
+  printf "%s\n" "$M_ENV_TITLE" > /dev/tty
+  printf "%s\n" "$M_ENV_OPT_PROD" > /dev/tty
+  printf "%s\n" "$M_ENV_OPT_STAGING" > /dev/tty
+  printf "%s\n" "$M_ENV_OPT_DEV" > /dev/tty
+  while :; do
+    ans=""
+    printf "%s" "$M_ENV_ASK" > /dev/tty
+    read -r ans < /dev/tty || ans=""
+    case "$ans" in
+      ""|1|prod|production) printf Production;  return 0 ;;
+      2|stage|staging)      printf Staging;     return 0 ;;
+      3|dev|development)    printf Development; return 0 ;;
+      *) printf "%s\n" "$M_ENV_ASK_AGAIN" > /dev/tty ;;
+    esac
+  done
+}
+
+# ask_url <prompt template> <current value> -> url (possibly empty) on stdout
+ask_url() {
+  while :; do
+    ans=""
+    shown="${2:-}"
+    [ -z "$shown" ] && shown="$M_URL_DEFAULT"
+    printf "%s" "$(fmt "$1" "$shown")" > /dev/tty
+    read -r ans < /dev/tty || ans=""
+    if [ -z "$ans" ]; then printf "%s" "${2:-}"; return 0; fi
+    case "$ans" in
+      -|none|NONE) printf ""; return 0 ;;
+      http://*|https://*) printf "%s" "$ans"; return 0 ;;
+      *) printf "%s\n" "$M_URL_BAD" > /dev/tty ;;
+    esac
+  done
+}
+
+read_override() {  # read_override <data dir> <json key>
+  [ -f "$1/environment.override.json" ] || return 0
+  sed -n "s/.*\"$2\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p" "$1/environment.override.json" | head -1
+}
+
+write_overrides() {  # write_overrides <data dir> <env> <region> <identity> <marketplace>
+  body="$(printf '{\n  "environments": {\n    "%s": {\n      "%s": {\n' "$2" "$3")"
+  # Command substitution eats trailing newlines, so every fragment carries its own leading one.
+  sep=""
+  if [ -n "$4" ]; then
+    body="$body$(printf '\n        "identityUrl": "%s"' "$4")"; sep=","
+  fi
+  if [ -n "$5" ]; then
+    body="$body$sep$(printf '\n        "marketplaceBaseUrl": "%s"' "$5")"
+  fi
+  body="$body$(printf '\n      }\n    }\n  }\n}')"
+  printf "%s\n" "$body" > "$1/environment.override.json" 2>/dev/null && return 0
+  [ -n "$SUDO" ] && printf "%s\n" "$body" | $SUDO tee "$1/environment.override.json" >/dev/null 2>&1
+}
+
+drop_overrides() {  # drop_overrides <data dir>
+  [ -f "$1/environment.override.json" ] || return 0
+  rm -f "$1/environment.override.json" 2>/dev/null && return 0
+  [ -n "$SUDO" ] && $SUDO rm -f "$1/environment.override.json" 2>/dev/null
 }
 
 ask_region() {
@@ -443,6 +556,54 @@ if [ "$REGION" != "$CURRENT_REGION" ]; then
 fi
 ok "$(fmt "$M_REGION_SET" "${B}${REGION}${Z}")"
 
+# --- wizard: TSVerse environment ------------------------------------------
+CURRENT_ENV="$(normalize_env "$($DOCKER inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$NAME" 2>/dev/null | sed -n 's/^TSLab__Environment=//p' | head -1 || true)")"
+ENV_NAME="$(normalize_env "${TSLAB_ENV:-}")"
+if [ -n "${TSLAB_ENV:-}" ] && [ -z "$ENV_NAME" ]; then
+  err "$(fmt "$M_ENV_BAD" "$TSLAB_ENV")"
+fi
+if [ -z "$ENV_NAME" ]; then
+  if [ -n "$CURRENT_ENV" ] && [ "$CURRENT_ENV" != "Production" ]; then
+    if tty_available; then
+      say "$(fmt "$M_ENV_CURRENT" "${B}${CURRENT_ENV}${Z}")"
+      if ask_yes_no "$M_ENV_KEEP"; then ENV_NAME="$CURRENT_ENV"; else ENV_NAME="$(ask_env)"; fi
+    else
+      ENV_NAME="$CURRENT_ENV"
+    fi
+  elif tty_available; then
+    ENV_NAME="$(ask_env)"
+  else
+    ENV_NAME="${CURRENT_ENV:-Production}"
+  fi
+fi
+ok "$(fmt "$M_ENV_SET" "${B}${ENV_NAME}${Z}")"
+
+# --- wizard: endpoint overrides (debugging, non-production only) -----------
+IDENTITY_URL="${TSLAB_IDENTITY_URL:-}"
+MARKETPLACE_URL="${TSLAB_MARKETPLACE_URL:-}"
+if [ -z "${TSLAB_IDENTITY_URL:-}" ]; then IDENTITY_URL="$(read_override "$DATA_DIR" identityUrl)"; fi
+if [ -z "${TSLAB_MARKETPLACE_URL:-}" ]; then MARKETPLACE_URL="$(read_override "$DATA_DIR" marketplaceBaseUrl)"; fi
+if [ "$ENV_NAME" = "Production" ]; then
+  IDENTITY_URL=""; MARKETPLACE_URL=""
+elif [ -z "${TSLAB_IDENTITY_URL:-}${TSLAB_MARKETPLACE_URL:-}" ] && tty_available; then
+  say "$M_URL_HINT"
+  IDENTITY_URL="$(ask_url "$M_URL_IDENTITY" "$IDENTITY_URL")"
+  MARKETPLACE_URL="$(ask_url "$M_URL_MARKETPLACE" "$MARKETPLACE_URL")"
+fi
+
+OVERRIDE_FILE=""
+if [ -n "$IDENTITY_URL" ] || [ -n "$MARKETPLACE_URL" ]; then
+  if write_overrides "$DATA_DIR" "$ENV_NAME" "$REGION" "$IDENTITY_URL" "$MARKETPLACE_URL"; then
+    OVERRIDE_FILE="$DATA_DIR/environment.override.json"
+    ok "$(fmt "$M_URL_SET" "${B}${IDENTITY_URL:--} ${MARKETPLACE_URL:--}${Z}")"
+  else
+    warn "$(fmt "$M_URL_WRITE_FAIL" "$DATA_DIR/environment.override.json")"
+  fi
+else
+  drop_overrides "$DATA_DIR" || true
+  say "$M_URL_NONE"
+fi
+
 # --- container ------------------------------------------------------------
 
 say "$(fmt "$M_PULL" "${B}${IMAGE}${Z}")"
@@ -450,11 +611,14 @@ $DOCKER pull "$IMAGE"
 
 say "$(fmt "$M_RUN" "${B}${NAME}${Z}")"
 $DOCKER rm -f "$NAME" >/dev/null 2>&1 || true
-$DOCKER run -d --name "$NAME" --restart unless-stopped \
-  -p "127.0.0.1:${PORT}:5000" \
-  -e TSLAB_PROFILE_PATH=/var/lib/tslab \
-  -v "${DATA_DIR}:/var/lib/tslab" \
-  "$IMAGE" >/dev/null
+RUN_ARGS=(-d --name "$NAME" --restart unless-stopped
+  -p "127.0.0.1:${PORT}:5000"
+  -e TSLAB_PROFILE_PATH=/var/lib/tslab
+  -e "TSLab__Environment=${ENV_NAME}"
+  -v "${DATA_DIR}:/var/lib/tslab")
+# The catalog override is merged over the embedded environment.json in the image working dir.
+[ -n "$OVERRIDE_FILE" ] && RUN_ARGS+=(-v "${OVERRIDE_FILE}:/app/environment.json:ro")
+$DOCKER run "${RUN_ARGS[@]}" "$IMAGE" >/dev/null
 ok "$(fmt "$M_STARTED" "${PORT}")"
 
 # Wait until the WebUI answers.
