@@ -76,6 +76,9 @@ RU = [
     ("WaitConfirm",      "Жду подтверждения на вашем устройстве (до 5 минут)…"),
     ("Connected",        "Подключено к TSVerse."),
     ("ConfirmTimeout",   "Подтверждение не получено за отведённое время. Откройте логи и завершите вход: docker logs -f {0}"),
+    ("ScopeBlocked",     "Вход подтверждён, но на странице подтверждения TSVerse снято разрешение, без которого сервер работать не может, и вход не завершён. Снято:"),
+    ("ScopeDegraded",    "Вход выполнен, но на странице подтверждения TSVerse часть разрешений снята. Снято:"),
+    ("ScopeHint",        "Запустите установку ещё раз и оставьте на этой странице все галочки: «Offline Access» держит сессию после перезапуска, «shop api» открывает брокерские подключения, лицензии и подписки."),
     ("NoCodeYet",        "Код входа пока не появился. Посмотрите логи (дождитесь блока с QR): docker logs -f {0}"),
     ("DoneOk",           "Готово. TSLab установлен и подключён к TSVerse."),
     ("DonePartial",      "TSLab установлен и запущен. Завершите вход по инструкции выше."),
@@ -198,6 +201,9 @@ function Get-TSLabStringsEn {
     WaitConfirm      = 'Waiting for the confirmation on your device (up to 5 minutes)...'
     Connected        = 'Connected to TSVerse.'
     ConfirmTimeout   = 'No confirmation arrived within the timeout. Open the logs and finish the sign-in: docker logs -f {0}'
+    ScopeBlocked     = 'The sign-in was confirmed, but a permission the server cannot work without was cleared on the TSVerse confirmation page, so the sign-in did not complete. Cleared:'
+    ScopeDegraded    = 'Signed in, but some permissions were cleared on the TSVerse confirmation page. Cleared:'
+    ScopeHint        = 'Run the installation again and leave every permission checked on that page: "Offline Access" keeps the session across restarts, "shop api" opens broker connections, licences and subscriptions.'
     NoCodeYet        = 'The sign-in code has not appeared yet. Check the logs and wait for the QR block: docker logs -f {0}'
     DoneOk           = 'Done. TSLab is installed and connected to TSVerse.'
     DonePartial      = 'TSLab is installed and running. Finish the sign-in as described above.'
@@ -397,6 +403,23 @@ function Set-TSLabOverrides([string]$DataDir, [string]$EnvName, [string]$Region,
 function Remove-TSLabOverrides([string]$DataDir) {
   $f = Join-Path $DataDir 'environment.override.json'
   if (Test-Path $f) { try { Remove-Item -Force -Path $f } catch { } }
+}
+
+# The container reports a cleared consent permission in English (its whole log is). Pull out the
+# checkbox names it lists - the user saw exactly those on the confirmation page - and frame them in the
+# installer's language.
+function Show-TSLabDeclinedScopes([string]$Logs, [bool]$Blocked, $L) {
+  if ($Blocked) { Write-Host "!   $($L.ScopeBlocked)" -ForegroundColor Yellow }
+  else { Write-Host "!   $($L.ScopeDegraded)" -ForegroundColor Yellow }
+  $seen = @{}
+  foreach ($m in [regex]::Matches($Logs, '-\s+"([^"]*)"')) {
+    $name = $m.Groups[1].Value
+    if (-not $seen.ContainsKey($name)) {
+      $seen[$name] = $true
+      Write-Host "        - $name" -ForegroundColor Yellow
+    }
+  }
+  Write-Host "!   $($L.ScopeHint)" -ForegroundColor Yellow
 }
 
 function Invoke-TSLabInstall {
@@ -610,12 +633,24 @@ function Invoke-TSLabInstall {
 
   if ($codeShown) {
     Say $L.WaitConfirm
+    $scopesBlocked = $false
     for ($i = 0; $i -lt 150; $i++) {
       $logs = (docker logs $Name 2>&1) -join "`n"
       if ($logs -match 'successfully connected to the notification system') { Ok $L.Connected; $success = $true; break }
+      # A cleared required permission never resolves: the container just issues a fresh code every few
+      # minutes. Stop and say so instead of waiting out the timeout and blaming the wrong thing.
+      if ($logs -match 'sign-in could not be completed') { $scopesBlocked = $true; break }
       Start-Sleep 2
     }
-    if (-not $success) { Warn ($L.ConfirmTimeout -f $Name) }
+    if ($scopesBlocked) {
+      Show-TSLabDeclinedScopes $logs $true $L
+    }
+    elseif ($success) {
+      if ($logs -match 'permissions were cleared on the confirmation page') {
+        Show-TSLabDeclinedScopes $logs $false $L
+      }
+    }
+    else { Warn ($L.ConfirmTimeout -f $Name) }
   }
   elseif (-not $success) {
     Warn ($L.NoCodeYet -f $Name)

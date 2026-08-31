@@ -489,6 +489,26 @@ docker rm -f tslab        # remove the container (data is kept)</code></pre>
         <b>Windows (PowerShell)</b> tab instead:
         <br><code>irm https://nektodron.github.io/tslab-cloud/install.ps1 | iex</code></div></details>
 
+    <details data-l="ru"><summary>Установка сказала, что снято разрешение</summary>
+      <div class="body">На странице подтверждения TSVerse (там, где вы вводите код) можно снять галочки
+        с разрешений. Два снимать нельзя:
+        <br><b>Offline Access</b> — без него сервер не получает refresh-токен, не может держать сессию,
+        и вход <b>вообще не завершится</b>: контейнер будет молча выдавать новый код каждые несколько минут.
+        <br><b>Provides access to shop api</b> — без него закрыты брокерские подключения, лицензии,
+        подписки и загрузка провайдеров: сервер запустится, но список источников данных будет пуст.
+        <br>Установщик называет снятые разрешения ровно так, как они подписаны на форме. Лечение одно:
+        запустить установку ещё раз и оставить все галочки. Данные и папка при этом сохраняются.</div></details>
+    <details data-l="en"><summary>The installation said a permission was cleared</summary>
+      <div class="body">The TSVerse confirmation page (the one where you type the code) lets you clear
+        individual permissions. Two of them must stay checked:
+        <br><b>Offline Access</b> — without it the server gets no refresh token, cannot keep its session, and
+        the sign-in <b>never completes</b>: the container silently issues a new code every few minutes.
+        <br><b>Provides access to shop api</b> — without it broker connections, licences, subscriptions and
+        provider downloads are closed: the server starts, but the data source list stays empty.
+        <br>The installer names the cleared permissions exactly as they are labelled on that page. The fix is
+        the same in both cases: run the installation again and leave every permission checked. Your data and
+        folder are kept.</div></details>
+
     <details data-l="ru"><summary>Не увидел код входа в TSVerse</summary>
       <div class="body">Код появляется через <b>~30–60 секунд</b> после старта (сервер сперва пытается
         восстановить прошлую сессию). Смотрите логи с <code>-f</code> и дождитесь блока с QR:

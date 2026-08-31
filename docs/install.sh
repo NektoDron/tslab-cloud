@@ -154,6 +154,9 @@ Docs: https://nektodron.github.io/tslab-cloud/"
   M_WAIT_CONFIRM="Waiting for the confirmation on your device (up to 5 minutes)..."
   M_CONNECTED="Connected to TSVerse."
   M_CONFIRM_TIMEOUT="No confirmation arrived within the timeout."
+  M_SCOPE_BLOCKED="The sign-in was confirmed, but a permission the server cannot work without was cleared on the TSVerse confirmation page, so the sign-in did not complete. Cleared:"
+  M_SCOPE_DEGRADED="Signed in, but some permissions were cleared on the TSVerse confirmation page. Cleared:"
+  M_SCOPE_HINT="Run the installation again and leave every permission checked on that page: \"Offline Access\" keeps the session across restarts, \"shop api\" opens broker connections, licences and subscriptions."
   M_SEE_LOGS="Open the logs and finish the sign-in (a code lives ~5 minutes; a new one appears when it expires):"
   M_DONE_OK="Done. TSLab is installed and connected to TSVerse."
   M_DONE_PARTIAL="TSLab is installed and running."
@@ -238,6 +241,9 @@ strings_ru() {
   M_WAIT_CONFIRM="Жду подтверждения на вашем устройстве (до 5 минут)…"
   M_CONNECTED="Подключено к TSVerse."
   M_CONFIRM_TIMEOUT="Подтверждение не получено за отведённое время."
+  M_SCOPE_BLOCKED="Вход подтверждён, но на странице подтверждения TSVerse снято разрешение, без которого сервер работать не может, и вход не завершён. Снято:"
+  M_SCOPE_DEGRADED="Вход выполнен, но на странице подтверждения TSVerse часть разрешений снята. Снято:"
+  M_SCOPE_HINT="Запустите установку ещё раз и оставьте на этой странице все галочки: «Offline Access» держит сессию после перезапуска, «shop api» открывает брокерские подключения, лицензии и подписки."
   M_SEE_LOGS="Откройте логи и завершите вход (код живёт ~5 минут, при истечении появится новый):"
   M_DONE_OK="Готово. TSLab установлен и подключён к TSVerse."
   M_DONE_PARTIAL="TSLab установлен и запущен."
@@ -636,6 +642,17 @@ open_url() {
   esac
 }
 
+# The container reports a cleared consent permission in English (its whole log is). Pull out the
+# checkbox names it lists - the user saw exactly those on the confirmation page - and frame them in the
+# installer's language. Without this the wait below would just time out and blame the wrong thing.
+report_declined_scopes() {  # report_declined_scopes <logs> <blocked: 1|0>
+  if [ "$2" = "1" ]; then warn "$M_SCOPE_BLOCKED"; else warn "$M_SCOPE_DEGRADED"; fi
+  printf "%s" "$1" \
+    | sed -n 's/.*- "\([^"]*\)".*/    - \1/p' \
+    | awk '!seen[$0]++' >&2
+  warn "$M_SCOPE_HINT"
+}
+
 say "$M_CHECK_LOGIN"
 CODE_SHOWN=0
 SUCCESS=0
@@ -668,15 +685,27 @@ done
 
 if [ "$CODE_SHOWN" = "1" ]; then
   say "$M_WAIT_CONFIRM"
+  SCOPES_BLOCKED=0
   for _ in $(seq 1 150); do
     logs="$($DOCKER logs "$NAME" 2>&1 || true)"
     if printf "%s" "$logs" | grep -q "successfully connected to the notification system"; then
       ok "$M_CONNECTED"
       SUCCESS=1; break
     fi
+    # A cleared required permission never resolves: the container just issues a fresh code every few
+    # minutes. Stop and say so instead of waiting out the timeout.
+    if printf "%s" "$logs" | grep -q "sign-in could not be completed"; then
+      SCOPES_BLOCKED=1; break
+    fi
     sleep 2
   done
-  if [ "$SUCCESS" != "1" ]; then
+  if [ "$SCOPES_BLOCKED" = "1" ]; then
+    report_declined_scopes "$logs" 1
+  elif [ "$SUCCESS" = "1" ]; then
+    if printf "%s" "$logs" | grep -q "permissions were cleared on the confirmation page"; then
+      report_declined_scopes "$logs" 0
+    fi
+  else
     warn "$M_CONFIRM_TIMEOUT"
     warn "$M_SEE_LOGS"
     warn "    $DOCKER logs -f $NAME"
@@ -687,6 +716,10 @@ fi
 echo
 if [ "$SUCCESS" = "1" ]; then
   ok "${B}${M_DONE_OK}${Z}"
+elif [ "${SCOPES_BLOCKED:-0}" = "1" ]; then
+  # "Finish the sign-in as described above" would contradict the advice printed just above it: the
+  # code is not the problem, the cleared permission is.
+  ok "${B}${M_DONE_PARTIAL}${Z}"
 else
   ok "${B}${M_DONE_PARTIAL}${Z} ${M_DONE_PARTIAL2}"
 fi

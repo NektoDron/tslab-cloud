@@ -99,6 +99,9 @@ function Get-TSLabStringsEn {
     WaitConfirm      = 'Waiting for the confirmation on your device (up to 5 minutes)...'
     Connected        = 'Connected to TSVerse.'
     ConfirmTimeout   = 'No confirmation arrived within the timeout. Open the logs and finish the sign-in: docker logs -f {0}'
+    ScopeBlocked     = 'The sign-in was confirmed, but a permission the server cannot work without was cleared on the TSVerse confirmation page, so the sign-in did not complete. Cleared:'
+    ScopeDegraded    = 'Signed in, but some permissions were cleared on the TSVerse confirmation page. Cleared:'
+    ScopeHint        = 'Run the installation again and leave every permission checked on that page: "Offline Access" keeps the session across restarts, "shop api" opens broker connections, licences and subscriptions.'
     NoCodeYet        = 'The sign-in code has not appeared yet. Check the logs and wait for the QR block: docker logs -f {0}'
     DoneOk           = 'Done. TSLab is installed and connected to TSVerse.'
     DonePartial      = 'TSLab is installed and running. Finish the sign-in as described above.'
@@ -180,6 +183,9 @@ function Get-TSLabStringsRu {
     WaitConfirm      = '0JbQtNGDINC/0L7QtNGC0LLQtdGA0LbQtNC10L3QuNGPINC90LAg0LLQsNGI0LXQvCDRg9GB0YLRgNC+0LnRgdGC0LLQtSAo0LTQviA1INC80LjQvdGD0YIp4oCm'  # Жду подтверждения на вашем устройстве (до 5 минут)…
     Connected        = '0J/QvtC00LrQu9GO0YfQtdC90L4g0LogVFNWZXJzZS4='  # Подключено к TSVerse.
     ConfirmTimeout   = '0J/QvtC00YLQstC10YDQttC00LXQvdC40LUg0L3QtSDQv9C+0LvRg9GH0LXQvdC+INC30LAg0L7RgtCy0LXQtNGR0L3QvdC+0LUg0LLRgNC10LzRjy4g0J7RgtC60YDQvtC50YLQtSDQu9C+0LPQuCDQuCDQt9Cw0LLQtdGA0YjQuNGC0LUg0LLRhdC+0LQ6IGRvY2tlciBsb2dzIC1mIHswfQ=='  # Подтверждение не получено за отведённое время. Откройте логи и завершите вход: docker logs -f {0}
+    ScopeBlocked     = '0JLRhdC+0LQg0L/QvtC00YLQstC10YDQttC00ZHQvSwg0L3QviDQvdCwINGB0YLRgNCw0L3QuNGG0LUg0L/QvtC00YLQstC10YDQttC00LXQvdC40Y8gVFNWZXJzZSDRgdC90Y/RgtC+INGA0LDQt9GA0LXRiNC10L3QuNC1LCDQsdC10Lcg0LrQvtGC0L7RgNC+0LPQviDRgdC10YDQstC10YAg0YDQsNCx0L7RgtCw0YLRjCDQvdC1INC80L7QttC10YIsINC4INCy0YXQvtC0INC90LUg0LfQsNCy0LXRgNGI0ZHQvS4g0KHQvdGP0YLQvjo='  # Вход подтверждён, но на странице подтверждения TSVerse снято разрешение, без которого сервер работать не может, и вход не завершён. Снято:
+    ScopeDegraded    = '0JLRhdC+0LQg0LLRi9C/0L7Qu9C90LXQvSwg0L3QviDQvdCwINGB0YLRgNCw0L3QuNGG0LUg0L/QvtC00YLQstC10YDQttC00LXQvdC40Y8gVFNWZXJzZSDRh9Cw0YHRgtGMINGA0LDQt9GA0LXRiNC10L3QuNC5INGB0L3Rj9GC0LAuINCh0L3Rj9GC0L46'  # Вход выполнен, но на странице подтверждения TSVerse часть разрешений снята. Снято:
+    ScopeHint        = '0JfQsNC/0YPRgdGC0LjRgtC1INGD0YHRgtCw0L3QvtCy0LrRgyDQtdGJ0ZEg0YDQsNC3INC4INC+0YHRgtCw0LLRjNGC0LUg0L3QsCDRjdGC0L7QuSDRgdGC0YDQsNC90LjRhtC1INCy0YHQtSDQs9Cw0LvQvtGH0LrQuDogwqtPZmZsaW5lIEFjY2Vzc8K7INC00LXRgNC20LjRgiDRgdC10YHRgdC40Y4g0L/QvtGB0LvQtSDQv9C10YDQtdC30LDQv9GD0YHQutCwLCDCq3Nob3AgYXBpwrsg0L7RgtC60YDRi9Cy0LDQtdGCINCx0YDQvtC60LXRgNGB0LrQuNC1INC/0L7QtNC60LvRjtGH0LXQvdC40Y8sINC70LjRhtC10L3Qt9C40Lgg0Lgg0L/QvtC00L/QuNGB0LrQuC4='  # Запустите установку ещё раз и оставьте на этой странице все галочки: «Offline Access» держит сессию после перезапуска, «shop api» открывает брокерские подключения, лицензии и подписки.
     NoCodeYet        = '0JrQvtC0INCy0YXQvtC00LAg0L/QvtC60LAg0L3QtSDQv9C+0Y/QstC40LvRgdGPLiDQn9C+0YHQvNC+0YLRgNC40YLQtSDQu9C+0LPQuCAo0LTQvtC20LTQuNGC0LXRgdGMINCx0LvQvtC60LAg0YEgUVIpOiBkb2NrZXIgbG9ncyAtZiB7MH0='  # Код входа пока не появился. Посмотрите логи (дождитесь блока с QR): docker logs -f {0}
     DoneOk           = '0JPQvtGC0L7QstC+LiBUU0xhYiDRg9GB0YLQsNC90L7QstC70LXQvSDQuCDQv9C+0LTQutC70Y7Rh9GR0L0g0LogVFNWZXJzZS4='  # Готово. TSLab установлен и подключён к TSVerse.
     DonePartial      = 'VFNMYWIg0YPRgdGC0LDQvdC+0LLQu9C10L0g0Lgg0LfQsNC/0YPRidC10L0uINCX0LDQstC10YDRiNC40YLQtSDQstGF0L7QtCDQv9C+INC40L3RgdGC0YDRg9C60YbQuNC4INCy0YvRiNC1Lg=='  # TSLab установлен и запущен. Завершите вход по инструкции выше.
@@ -372,6 +378,23 @@ function Set-TSLabOverrides([string]$DataDir, [string]$EnvName, [string]$Region,
 function Remove-TSLabOverrides([string]$DataDir) {
   $f = Join-Path $DataDir 'environment.override.json'
   if (Test-Path $f) { try { Remove-Item -Force -Path $f } catch { } }
+}
+
+# The container reports a cleared consent permission in English (its whole log is). Pull out the
+# checkbox names it lists - the user saw exactly those on the confirmation page - and frame them in the
+# installer's language.
+function Show-TSLabDeclinedScopes([string]$Logs, [bool]$Blocked, $L) {
+  if ($Blocked) { Write-Host "!   $($L.ScopeBlocked)" -ForegroundColor Yellow }
+  else { Write-Host "!   $($L.ScopeDegraded)" -ForegroundColor Yellow }
+  $seen = @{}
+  foreach ($m in [regex]::Matches($Logs, '-\s+"([^"]*)"')) {
+    $name = $m.Groups[1].Value
+    if (-not $seen.ContainsKey($name)) {
+      $seen[$name] = $true
+      Write-Host "        - $name" -ForegroundColor Yellow
+    }
+  }
+  Write-Host "!   $($L.ScopeHint)" -ForegroundColor Yellow
 }
 
 function Invoke-TSLabInstall {
@@ -585,12 +608,24 @@ function Invoke-TSLabInstall {
 
   if ($codeShown) {
     Say $L.WaitConfirm
+    $scopesBlocked = $false
     for ($i = 0; $i -lt 150; $i++) {
       $logs = (docker logs $Name 2>&1) -join "`n"
       if ($logs -match 'successfully connected to the notification system') { Ok $L.Connected; $success = $true; break }
+      # A cleared required permission never resolves: the container just issues a fresh code every few
+      # minutes. Stop and say so instead of waiting out the timeout and blaming the wrong thing.
+      if ($logs -match 'sign-in could not be completed') { $scopesBlocked = $true; break }
       Start-Sleep 2
     }
-    if (-not $success) { Warn ($L.ConfirmTimeout -f $Name) }
+    if ($scopesBlocked) {
+      Show-TSLabDeclinedScopes $logs $true $L
+    }
+    elseif ($success) {
+      if ($logs -match 'permissions were cleared on the confirmation page') {
+        Show-TSLabDeclinedScopes $logs $false $L
+      }
+    }
+    else { Warn ($L.ConfirmTimeout -f $Name) }
   }
   elseif (-not $success) {
     Warn ($L.NoCodeYet -f $Name)
